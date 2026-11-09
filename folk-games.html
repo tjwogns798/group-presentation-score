@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전통놀이 한마당</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5ecd9; --paper:#fffaf0; --ink:#3b2a1a; --muted:#7a6650; --line:#dccaa5;
+  --red:#c8372d; --blue:#2b5a9e; --yellow:#e2a72e; --green:#3f8a4f; --wood:#7a5a3a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{touch-action:manipulation}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Gowun Dodum','Malgun Gothic',sans-serif;
+  background-image:radial-gradient(rgba(122,90,58,.06) 1px,transparent 1px);background-size:14px 14px}
+h1,h2,h3,.tab,button,.big,.jua{font-family:'Jua','Malgun Gothic',sans-serif;font-weight:400}
+header{text-align:center;padding:20px 16px 6px}
+header h1{margin:0;font-size:clamp(28px,5vw,44px);letter-spacing:1px}
+header h1 span{color:var(--red)}
+header p{margin:6px 0 0;color:var(--muted);font-size:17px}
+.obang{display:flex;justify-content:center;gap:6px;margin:10px 0 0}
+.obang i{width:28px;height:6px;border-radius:3px;display:block}
+nav{max-width:980px;margin:16px auto 0;padding:0 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tab{border:3px solid var(--ink);background:var(--paper);border-radius:18px;padding:10px 6px;font-size:clamp(17px,2.6vw,24px);
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--ink);transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 0 var(--ink)}
+@media (hover:hover){.tab:hover{transform:translateY(-2px)}}
+.tab .ico{font-size:clamp(26px,4.5vw,38px);line-height:1.1}
+.tab.active{background:var(--tc);color:#fff;transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+main{max-width:980px;margin:18px auto 40px;padding:0 16px}
+.panel{display:none}
+.panel.active{display:block;animation:fade .3s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 3px 0 var(--line)}
+.ptitle{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.ptitle h2{margin:0;font-size:30px}
+.ptitle span{color:var(--muted)}
+details.info{margin-top:14px;background:#fff;border:2px dashed var(--line);border-radius:16px;padding:10px 14px}
+details.info summary{cursor:pointer;font-family:'Jua',sans-serif;font-size:19px}
+details.info p,details.info li{line-height:1.7;font-size:16px}
+.btn{border:3px solid var(--ink);background:var(--yellow);color:var(--ink);border-radius:14px;padding:10px 18px;font-size:20px;
+  cursor:pointer;box-shadow:0 4px 0 var(--ink);transition:transform .1s,box-shadow .1s;min-height:48px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:0 4px 0 var(--ink)}
+.btn.small{font-size:17px;padding:8px 14px}
+.btn.picked{background:#ffd84a;box-shadow:0 0 0 4px #e2a72e}
+#yutGhost{cursor:pointer;animation:bob .7s infinite alternate}
+@keyframes bob{from{opacity:.65}to{opacity:1}}
+select{min-height:44px}
+.btn.ghost{background:#fff}
+select{font-family:inherit;font-size:16px;padding:6px 8px;border-radius:10px;border:2px solid var(--line);background:#fff}
+.muted{color:var(--muted)}
+.status{font-family:'Jua',sans-serif;font-size:20px;text-align:center;padding:10px;border-radius:14px;background:#fff;border:2px solid var(--line);min-height:50px}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;margin:10px 0}
+
+/* 윷놀이 */
+.yut-wrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.yut-wrap{grid-template-columns:1fr}}
+#yutBoard{width:100%;max-width:470px;display:block;margin:0 auto;background:#f3e2bd;border-radius:18px;border:3px solid var(--wood)}
+.tok{transition:opacity .2s}
+.tok.movable{cursor:pointer}
+.tok.movable circle:not(.hit){animation:pulse 1s infinite alternate}
+@keyframes pulse{from{stroke:#fff}to{stroke:#ffd84a}}
+.sticks{display:flex;gap:12px;justify-content:center;align-items:center;height:160px}
+.stick{width:36px;height:140px;border-radius:18px;position:relative;display:flex;flex-direction:column;justify-content:space-evenly;align-items:center;
+  font-size:16px;font-weight:bold}
+.stick.flat{background:linear-gradient(#f6e5be,#e8cc92);border:3px solid #b98d4a;color:transparent}
+.stick.round{background:linear-gradient(90deg,#7b4e22,#a8723c,#7b4e22);border:3px solid #5e3b18;color:#f6e5be}
+.stick.toss{animation:toss .65s ease-in-out both}
+@keyframes toss{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(-70px) rotate(300deg)}100%{transform:translateY(0) rotate(720deg)}}
+.yut-big{font-family:'Jua',sans-serif;font-size:44px;text-align:center;min-height:56px;color:var(--red)}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.team{border:3px solid var(--tc);background:var(--tl);border-radius:14px;padding:8px 10px;opacity:.75}
+.team.now{opacity:1;box-shadow:0 0 0 4px #ffd84a}
+.team .tname{font-family:'Jua',sans-serif;font-size:20px;color:var(--tc)}
+.team .row{font-size:15px;margin:3px 0}
+.team .dots{color:var(--tc);font-size:18px;letter-spacing:2px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.chip{border:2px solid var(--ink);background:#fff;border-radius:999px;padding:8px 18px;font-size:19px;cursor:pointer;min-height:44px}
+.chip.sel{background:var(--ink);color:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;font-size:14px}
+.legend span{background:#fff;border:1px solid var(--line);border-radius:8px;padding:2px 8px}
+
+/* 캔버스 놀이 */
+.stage{position:relative;max-width:760px;margin:0 auto}
+.stage canvas{width:100%;display:block;border-radius:18px;border:3px solid var(--wood);touch-action:none;cursor:pointer;background:#cfe8f5}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  background:rgba(59,42,26,.55);border-radius:18px;color:#fff;text-align:center;padding:16px}
+.overlay.hide{display:none}
+.overlay h3{margin:0;font-size:clamp(26px,5vw,40px)}
+.overlay p{margin:0;font-size:18px}
+
+/* 고누 */
+.gonu-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:760px){.gonu-wrap{grid-template-columns:1fr}}
+#gonuBoard{width:100%;max-width:420px;display:block;margin:0 auto;background:#f3e2bd;border-radius:18px;border:3px solid var(--wood)}
+.gp{transition:transform .45s ease}
+.gp.movable{cursor:pointer}
+.gp.movable .ring{visibility:visible}
+.gp .ring{visibility:hidden;animation:pulse2 .9s infinite alternate}
+@keyframes pulse2{from{opacity:.3}to{opacity:1}}
+/* 하는 방법 */
+details.how{margin:0 0 14px;background:#fff8e6;border:3px solid var(--yellow);border-radius:18px;padding:10px 14px}
+details.how summary{cursor:pointer;font-family:'Jua',sans-serif;font-size:22px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.how summary::-webkit-details-marker{display:none}
+details.how summary::after{content:'접기 ▲';font-size:15px;color:var(--muted)}
+details.how:not([open]) summary::after{content:'펼치기 ▼'}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:10px}
+.step{background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;font-size:17px;line-height:1.5}
+.step .n{flex:none;width:32px;height:32px;border-radius:50%;background:var(--sc,#c8372d);color:#fff;font-family:'Jua',sans-serif;display:grid;place-items:center;font-size:19px}
+.rules{margin:10px 0 2px;padding-left:22px;font-size:16px;line-height:1.7}
+kbd{display:inline-block;border:2px solid var(--ink);border-bottom-width:4px;border-radius:6px;padding:0 6px;font-family:'Jua',sans-serif;background:#fff;font-size:15px}
+/* 투호 터치 버튼 */
+.tuho-ctl{display:grid;grid-template-columns:1fr 1fr 2fr;gap:10px;max-width:760px;margin:12px auto 0}
+.tuho-ctl .btn{font-size:20px;min-height:64px;touch-action:none}
+#tFire{background:var(--red);color:#fff}
+#tFire.on{background:#8f2219;transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+footer{text-align:center;color:var(--muted);font-size:14px;padding:0 16px 30px}
+</style>
+</head>
+<body>
+<header>
+  <h1>옛날부터 전해 내려오는 <span>전통놀이</span> 한마당</h1>
+  <p>탭을 눌러 윷놀이, 제기차기, 투호, 고누를 체험해 보아요!</p>
+  <div class="obang"><i style="background:#2b5a9e"></i><i style="background:#c8372d"></i><i style="background:#e2a72e"></i><i style="background:#fff;border:1px solid #ccc"></i><i style="background:#222"></i></div>
+</header>
+
+<nav>
+  <button class="tab active" data-panel="p-yut" style="--tc:var(--red)"><span class="ico">🥢</span>윷놀이</button>
+  <button class="tab" data-panel="p-jegi" style="--tc:var(--blue)"><span class="ico">🪶</span>제기차기</button>
+  <button class="tab" data-panel="p-tuho" style="--tc:var(--green)"><span class="ico">🏺</span>투호</button>
+  <button class="tab" data-panel="p-gonu" style="--tc:#555"><span class="ico">⚫</span>고누</button>
+</nav>
+
+<main>
+<!-- ================= 윷놀이 ================= -->
+<section class="panel active" id="p-yut">
+ <div class="card">
+  <div class="ptitle"><h2>🥢 윷놀이</h2><span>두 팀이 번갈아 윷을 던져 말을 먼저 모두 들여보내면 이겨요!</span></div>
+  <details class="how" open style="--sc:var(--red)">
+    <summary>🎯 이렇게 해요</summary>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div>짝이 없으면 아래 <b>상대</b>에서 <b>컴퓨터와 하기</b>를 골라요. (나는 빨강 팀) <b>윷 던지기!</b> 버튼을 눌러요. <b>윷</b>이나 <b>모</b>가 나오면 한 번 더 던져요.</div></div>
+      <div class="step"><span class="n">2</span><div>반짝이는 <b>우리 팀 말</b>이나 <b>새 말 내보내기</b>를 톡 눌러요. 갈 곳에 노란 <b>「여기로!」</b>가 나와요.</div></div>
+      <div class="step"><span class="n">3</span><div><b>「여기로!」</b>를 누르거나 같은 말을 한 번 더 누르면 말이 움직여요.</div></div>
+      <div class="step"><span class="n">4</span><div>말이 판을 한 바퀴 돌아 <b>출발점</b>에 오면 도착! 모든 말이 먼저 도착한 팀이 이겨요.</div></div>
+    </div>
+    <ul class="rules">
+      <li>⭐ 큰 동그라미(모서리, 가운데)에 <b>딱 멈추면</b> 다음에 지름길(대각선)로 가요.</li>
+      <li>💥 상대 말이 있는 곳에 멈추면 <b>잡기</b>! 상대 말은 처음으로 돌아가고 한 번 더 던져요.</li>
+      <li>🤝 우리 팀 말이 있는 곳에 멈추면 <b>업기</b>! 함께 움직여요.</li>
+      <li>🔢 결과가 여러 개 남았으면 아래 결과 단추를 눌러 어떤 것을 쓸지 골라요.</li>
+    </ul>
+  </details>
+  <div class="yut-wrap">
+    <div>
+      <svg id="yutBoard" viewBox="0 0 400 420"></svg>
+      <div class="legend"><span>도 = 돼지 1칸</span><span>개 = 개 2칸</span><span>걸 = 양 3칸</span><span>윷 = 소 4칸</span><span>모 = 말 5칸</span></div>
+    </div>
+    <div>
+      <div class="status" id="yutStatus"></div>
+      <div class="sticks" id="yutSticks">
+        <div class="stick flat"></div><div class="stick flat"></div><div class="stick flat"></div><div class="stick flat"></div>
+      </div>
+      <div class="yut-big" id="yutBig"></div>
+      <div class="toolbar"><button class="btn" id="yutThrowBtn" style="font-size:24px;padding:12px 28px">윷 던지기!</button></div>
+      <div style="text-align:center" class="muted">남은 결과 (눌러서 고르기)</div>
+      <div class="chips" id="yutResults"></div>
+      <div class="teams" id="yutTeams"></div>
+      <div class="toolbar">
+        <label>상대 <select id="yutMode"><option value="pvp">친구와 하기</option><option value="ai">컴퓨터와 하기</option></select></label>
+        <label>팀마다 말 <select id="yutCount"><option>1</option><option selected>2</option><option>3</option><option>4</option></select> 개</label>
+        <button class="btn small ghost" id="yutReset">새 판 시작</button>
+      </div>
+    </div>
+  </div>
+  <details class="info">
+    <summary>📜 윷놀이 알아보기</summary>
+    <p>윷놀이는 설날부터 정월 대보름 무렵까지 가족과 이웃이 모여 즐기던 놀이예요. 윷가락 네 개를 던져서 나온 모양에 따라 말을 움직여요.
+    도·개·걸·윷·모는 각각 돼지·개·양·소·말을 뜻한다고 전해져요.</p>
+  </details>
+ </div>
+</section>
+
+<!-- ================= 제기차기 ================= -->
+<section class="panel" id="p-jegi">
+ <div class="card">
+  <div class="ptitle"><h2>🪶 제기차기</h2><span>제기가 땅에 떨어지지 않게 발로 톡톡 차 올려요!</span></div>
+  <details class="how" open style="--sc:var(--blue)">
+    <summary>🎯 이렇게 해요</summary>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div><b>시작하기</b>를 누르면 제기가 위에서 떨어져요.</div></div>
+      <div class="step"><span class="n">2</span><div>제기가 아래쪽 <b>초록색 「여기서 차요」</b> 구역까지 내려올 때까지 기다려요.</div></div>
+      <div class="step"><span class="n">3</span><div><b>제기 바로 아래</b>를 손가락으로 톡! 누르면 발이 그곳으로 가서 제기를 차 올려요.</div></div>
+      <div class="step"><span class="n">4</span><div>제기가 땅에 떨어지거나 <b>헛발질을 3번</b> 하면 끝! 몇 개 찼는지 친구와 기록을 겨뤄요.</div></div>
+    </div>
+    <ul class="rules">
+      <li>⚠️ 제기가 너무 높이 있거나 제기와 먼 곳을 누르면 <b>헛발질</b>이에요. 헛발질을 <b>3번</b> 하면 끝나요! (오른쪽 위 ❤ 개수를 보세요)</li>
+      <li>🚀 많이 찰수록 제기가 조금씩 빨라져요.</li>
+    </ul>
+  </details>
+  <div class="stage">
+    <canvas id="jegiCanvas" width="600" height="440"></canvas>
+    <div class="overlay" id="jegiOverlay">
+      <h3 id="jegiOvTitle">제기차기</h3>
+      <p id="jegiOvText">제기가 <b>초록색 차는 곳</b>까지 내려오면<br>👆 <b>제기 바로 아래</b>를 손가락으로 톡! 눌러 차 올려요!<br>헛발질은 3번까지만!</p>
+      <button class="btn" id="jegiStart">시작하기</button>
+    </div>
+  </div>
+  <details class="info">
+    <summary>📜 제기차기 알아보기</summary>
+    <p>제기차기는 엽전(구멍 뚫린 옛날 돈)을 한지나 천으로 싸서 술을 달아 만든 제기를 발로 차는 놀이예요. 주로 겨울과 설날 무렵에 많이 했어요.
+    한 발로 계속 차는 ‘땅강아지’, 두 발을 번갈아 차는 ‘양발차기’ 등 여러 방법이 있고, 누가 더 많이 차는지 겨루기도 했어요.</p>
+  </details>
+ </div>
+</section>
+
+<!-- ================= 투호 ================= -->
+<section class="panel" id="p-tuho">
+ <div class="card">
+  <div class="ptitle"><h2>🏺 투호</h2><span>각도와 힘을 조절해서 화살을 항아리에 쏙!</span></div>
+  <details class="how" open style="--sc:var(--green)">
+    <summary>🎯 이렇게 해요</summary>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div><kbd>↑</kbd> <kbd>↓</kbd> 방향키로 화살이 날아갈 <b>각도</b>를 정해요. (태블릿: <b>▲ ▼</b> 단추)</div></div>
+      <div class="step"><span class="n">2</span><div><kbd>스페이스바</kbd>를 <b>누르고 있으면</b> 왼쪽 힘 막대가 차올라요. (태블릿: <b>꾹 눌러 던지기</b> 단추)</div></div>
+      <div class="step"><span class="n">3</span><div><b>짧게</b> 누르면 약하게, <b>길게</b> 누르면 세게! 손을 떼는 순간 화살이 날아가요.</div></div>
+      <div class="step"><span class="n">4</span><div>항아리에 화살을 더 많이 넣은 팀이 이겨요. 항아리 자리는 매번 바뀌어요.</div></div>
+    </div>
+    <ul class="rules">
+      <li>💡 점선 <b>도움선</b>을 보면 화살이 어디로 갈지 알 수 있어요. 익숙해지면 도움선을 짧게 하거나 없애 보세요.</li>
+    </ul>
+  </details>
+  <div class="toolbar">
+    <label>방법 <select id="tuhoMode"><option value="2">두 팀 대결 (팀마다 5개)</option><option value="1">혼자 하기 (10개)</option></select></label>
+    <label>도움선 <select id="tuhoHelp"><option value="0.45">짧게 (보통)</option><option value="1">길게 (쉬움)</option><option value="0">없음 (어려움)</option></select></label>
+  </div>
+  <div class="stage">
+    <canvas id="tuhoCanvas" width="760" height="420"></canvas>
+    <div class="overlay" id="tuhoOverlay">
+      <h3 id="tuhoOvTitle">투호</h3>
+      <p id="tuhoOvText"><kbd>↑</kbd><kbd>↓</kbd> 각도 정하기 · <kbd>스페이스바</kbd> 꾹 눌렀다 떼면 발사!<br>짧게 = 약하게, 길게 = 세게</p>
+      <button class="btn" id="tuhoStart">시작하기</button>
+    </div>
+  </div>
+  <div class="tuho-ctl">
+    <button class="btn ghost" id="tUp">▲ 각도 위로</button>
+    <button class="btn ghost" id="tDown">▼ 각도 아래로</button>
+    <button class="btn" id="tFire">꾹 눌러 힘 모으기 · 떼면 발사!</button>
+  </div>
+  <details class="info">
+    <summary>📜 투호 알아보기</summary>
+    <p>투호는 일정한 거리에 항아리(투호병)를 놓고 화살을 던져 넣는 놀이예요. 조선 시대 궁궐과 양반집에서 즐겼고,
+    마음을 바르게 하고 집중하는 힘을 기르는 놀이로 여겼어요. 화살을 더 많이 넣은 편이 이겨요.</p>
+  </details>
+ </div>
+</section>
+
+<!-- ================= 고누 ================= -->
+<section class="panel" id="p-gonu">
+ <div class="card">
+  <div class="ptitle"><h2>⚫ 고누 (우물고누)</h2><span>상대의 말이 더 이상 움직일 수 없게 꼼짝 못 하게 가두면 이겨요!</span></div>
+  <details class="how" open style="--sc:#444">
+    <summary>🎯 이렇게 해요</summary>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><div><b>컴퓨터와 하기</b> 또는 <b>친구와 하기</b>를 골라요. 검은 돌이 먼저 시작해요.</div></div>
+      <div class="step"><span class="n">2</span><div>내 차례에 <b>노랗게 반짝이는 내 돌</b>을 톡 누르면, 비어 있는 점으로 한 칸 움직여요.</div></div>
+      <div class="step"><span class="n">3</span><div><b>선을 따라서만</b> 움직일 수 있어요. 아래 <b>우물</b>은 건너갈 수 없어요!</div></div>
+      <div class="step"><span class="n">4</span><div>상대가 <b>움직일 수 있는 돌이 하나도 없게</b> 가두면 내가 이겨요.</div></div>
+    </div>
+    <ul class="rules">
+      <li>🚫 맨 처음 수로 바로 상대를 가둘 수는 없어요.</li>
+      <li>🤝 60수가 지나도 승부가 안 나면 비겨요.</li>
+    </ul>
+  </details>
+  <div class="gonu-wrap">
+    <svg id="gonuBoard" viewBox="0 0 400 400"></svg>
+    <div>
+      <div class="status" id="gonuStatus"></div>
+      <div class="toolbar">
+        <label>상대 <select id="gonuMode"><option value="ai">컴퓨터와 하기</option><option value="pvp">친구와 하기</option></select></label>
+        <button class="btn small ghost" id="gonuReset">새 판 시작</button>
+      </div>
+      <div class="teams">
+        <div class="team now" style="--tc:#222;--tl:#eee"><div class="tname">⚫ 검은 돌</div><div class="row">먼저 시작해요</div></div>
+        <div class="team now" style="--tc:#8a6a3a;--tl:#fff"><div class="tname">⚪ 흰 돌</div><div class="row" id="gonuWhiteLabel">컴퓨터</div></div>
+      </div>
+    </div>
+  </div>
+  <details class="info">
+    <summary>📜 고누 알아보기</summary>
+    <p>고누는 땅바닥이나 종이에 판을 그리고, 작은 돌이나 나뭇가지를 말로 삼아 두 사람이 겨루던 놀이예요.
+    도구가 없어도 어디서나 할 수 있어서 아이들과 어른들 모두 즐겼어요. 우물고누, 호박고누, 참고누, 줄고누 등 종류가 아주 많아요.
+    우물고누는 판 아래쪽에 우물이 있어서 그 사이로는 지나갈 수 없는 고누예요.</p>
+  </details>
+ </div>
+</section>
+</main>
+<footer>3학년 사회 · 옛날부터 전해 내려오는 풍습을 체험해 볼까요</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const activePanel = () => document.querySelector('.panel.active').id;
+
+/* ---------- 탭 ---------- */
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === t.dataset.panel));
+});
+
+/* =========================================================
+   윷놀이
+   ========================================================= */
+const YNAME = {1:'도',2:'개',3:'걸',4:'윷',5:'모'};
+const YANIMAL = {1:'돼지',2:'개',3:'양',4:'소',5:'말'};
+const YT = [{name:'빨강 팀',color:'#c8372d',light:'#f8dcd8'},{name:'파랑 팀',color:'#2b5a9e',light:'#d8e4f5'}];
+const N = {};
+(function(){
+  const L=40,R=360,T=40,B=360,st=(R-L)/5;
+  for(let i=0;i<=5;i++) N['o'+i]={x:R,y:B-st*i};
+  for(let i=6;i<=10;i++) N['o'+i]={x:R-st*(i-5),y:T};
+  for(let i=11;i<=15;i++) N['o'+i]={x:L,y:T+st*(i-10)};
+  for(let i=16;i<=19;i++) N['o'+i]={x:L+st*(i-15),y:B};
+  N.C={x:200,y:200};
+  const lp=(a,b,t)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
+  N.a1=lp(N.o5,N.C,1/3); N.a2=lp(N.o5,N.C,2/3);
+  N.b1=lp(N.o10,N.C,1/3); N.b2=lp(N.o10,N.C,2/3);
+  N.c1=lp(N.C,N.o15,1/3); N.c2=lp(N.C,N.o15,2/3);
+  N.d1=lp(N.C,N.o0,1/3); N.d2=lp(N.C,N.o0,2/3);
+})();
+function outerFrom(i){const r=[];for(let k=i+1;k<=19;k++)r.push('o'+k);r.push('FIN');return r;}
+function yutPath(pos){
+  if(pos==='home') return outerFrom(0);
+  const toLeft=outerFrom(14);
+  const T={o5:['a1','a2','C','c1','c2',...toLeft], o10:['b1','b2','C','d1','d2','FIN'], C:['d1','d2','FIN'],
+    a1:['a2','C','c1','c2',...toLeft], a2:['C','c1','c2',...toLeft], b1:['b2','C','d1','d2','FIN'], b2:['C','d1','d2','FIN'],
+    c1:['c2',...toLeft], c2:toLeft, d1:['d2','FIN'], d2:['FIN']};
+  return T[pos] || outerFrom(+pos.slice(1));
+}
+function yutDest(pos,steps){const p=yutPath(pos);return p[Math.min(steps,p.length)-1];}
+
+let ys;
+function yutDrawBoard(){
+  let h=`<rect x="40" y="40" width="320" height="320" fill="none" stroke="#7a5a3a" stroke-width="4"/>
+  <line x1="40" y1="40" x2="360" y2="360" stroke="#7a5a3a" stroke-width="4"/>
+  <line x1="360" y1="40" x2="40" y2="360" stroke="#7a5a3a" stroke-width="4"/>`;
+  for(const [k,p] of Object.entries(N)){
+    const big=['o0','o5','o10','o15','C'].includes(k);
+    h+=`<circle cx="${p.x}" cy="${p.y}" r="${big?18:11}" fill="#fffaf0" stroke="#7a5a3a" stroke-width="3"/>`;
+    if(big) h+=`<circle cx="${p.x}" cy="${p.y}" r="10" fill="none" stroke="#c8372d" stroke-width="2"/>`;
+  }
+  h+=`<text x="360" y="398" text-anchor="middle" font-family="Jua" font-size="17" fill="#c8372d">출발·도착</text>
+  <text x="390" y="290" text-anchor="middle" font-size="22" fill="#7a5a3a">↑</text>
+  <g id="yutTokens"></g>
+  <g id="yutGhost" visibility="hidden"><circle r="26" fill="transparent"/><circle r="19" fill="rgba(255,216,74,.6)" stroke="#e2a72e" stroke-width="4" stroke-dasharray="6 4"/>
+   <text y="-26" text-anchor="middle" font-family="Jua" font-size="18" fill="#c8372d" stroke="#fffaf0" stroke-width="4" paint-order="stroke">여기로!</text></g>`;
+  $('#yutBoard').innerHTML=h;
+  $('#yutGhost').onclick=()=>{if(ys.pick!=null)yutMove(ys.pick);};
+}
+const tn=t=>ys&&ys.ai&&t===1?'컴퓨터(파랑 팀)':YT[t].name;
+function yutReset(){
+  const n=+$('#yutCount').value;
+  if(ys&&ys.aiTimer) clearTimeout(ys.aiTimer);
+  const ai=$('#yutMode').value==='ai';
+  ys={turn:0,throws:1,results:[],sel:0,pick:null,over:false,anim:false,ai,aiTimer:null,
+      msg:ai?'빨강 팀(나)부터 윷을 던져요! 상대는 컴퓨터예요.':'빨강 팀부터 윷을 던져요!',pieces:[[],[]]};
+  for(const t of [0,1]) for(let i=0;i<n;i++) ys.pieces[t].push({pos:'home'});
+  $('#yutBig').textContent='';
+  yutRender();
+}
+const yutCanMove=()=>!ys.over&&!ys.anim&&ys.throws===0&&ys.results.length>0;
+const yutAITurn=()=>ys.ai&&ys.turn===1&&!ys.over;
+const humanCan=()=>yutCanMove()&&!yutAITurn();
+/* ---- 컴퓨터 차례 ---- */
+function yutAIScore(from,r){
+  const team=ys.pieces[1], opp=ys.pieces[0], dest=yutDest(from,r);
+  const cnt=from==='home'?1:team.filter(p=>p.pos===from).length;
+  let s=r+Math.random()*3;
+  if(dest==='FIN') return s+60*cnt;
+  const caught=opp.filter(p=>p.pos===dest).length;
+  if(caught) s+=100+10*caught;
+  if(['o5','o10','C'].includes(dest)) s+=25;
+  if(team.some(p=>p.pos===dest)) s+=15;
+  if(from==='home') s+=8;
+  const threat=pos=>[...new Set(opp.filter(p=>p.pos!=='FIN').map(p=>p.pos))].some(op=>[1,2,3,4,5].some(k=>yutDest(op,k)===pos));
+  if(!caught&&threat(dest)) s-=20*cnt;
+  if(from!=='home'&&threat(from)) s+=10*cnt;
+  return s;
+}
+function yutAIStep(){
+  if(!yutAITurn()||ys.anim) return;
+  if(ys.throws>0){yutThrow();return;}
+  if(!ys.results.length) return;
+  const froms=[...new Set(ys.pieces[1].filter(p=>p.pos!=='FIN').map(p=>p.pos))];
+  let best=null;
+  ys.results.forEach((r,i)=>froms.forEach(f=>{const sc=yutAIScore(f,r);if(!best||sc>best.sc)best={sc,i,f};}));
+  ys.sel=best.i; yutMove(best.f);
+}
+function yutPick(pos){ // 첫 번째 터치: 도착할 곳 보여주기, 같은 말 한 번 더 터치: 이동
+  if(!humanCan()) return;
+  if(ys.pick===pos){yutMove(pos);return;}
+  ys.pick=pos; yutRender();
+}
+function yutRender(){
+  const g0=$('#yutGhost');
+  if(ys.pick!=null&&humanCan()){
+    const d=yutDest(ys.pick,ys.results[ys.sel]), p=N[d==='FIN'?'o0':d];
+    g0.setAttribute('transform',`translate(${p.x},${p.y})`); g0.setAttribute('visibility','visible');
+    g0.querySelector('text').textContent=d==='FIN'?'도착!':'여기로!';
+  } else { ys.pick=null; g0.setAttribute('visibility','hidden'); }
+  let h='';
+  [0,1].forEach(t=>{
+    const groups={};
+    ys.pieces[t].forEach(p=>{if(p.pos!=='home'&&p.pos!=='FIN')groups[p.pos]=(groups[p.pos]||0)+1;});
+    for(const [pos,c] of Object.entries(groups)){
+      const n=N[pos], mv=humanCan()&&t===ys.turn;
+      const pk=mv&&ys.pick===pos;
+      h+=`<g class="tok ${mv?'movable':''}" data-pos="${pos}"><circle class="hit" cx="${n.x}" cy="${n.y}" r="26" fill="transparent" stroke="none"/>
+      <circle cx="${n.x}" cy="${n.y}" r="${pk?18:15}" fill="${YT[t].color}" stroke="${pk?'#ffd84a':'#fff'}" stroke-width="${pk?6:4}" style="${pk?'animation:none':''}"/>
+      ${c>1?`<text x="${n.x}" y="${n.y+6}" text-anchor="middle" font-family="Jua" font-size="17" fill="#fff">${c}</text>`:''}</g>`;
+    }
+  });
+  const g=$('#yutTokens'); g.innerHTML=h;
+  g.querySelectorAll('.tok.movable').forEach(el=>el.onclick=()=>yutPick(el.dataset.pos));
+  $('#yutTeams').innerHTML=[0,1].map(t=>{
+    const ps=ys.pieces[t], home=ps.filter(p=>p.pos==='home').length, fin=ps.filter(p=>p.pos==='FIN').length;
+    const mv=humanCan()&&t===ys.turn&&home>0;
+    return `<div class="team ${t===ys.turn&&!ys.over?'now':''}" style="--tc:${YT[t].color};--tl:${YT[t].light}">
+      <div class="tname">${tn(t)}</div>
+      <div class="row">기다리는 말 <span class="dots">${'●'.repeat(home)||'-'}</span></div>
+      <div class="row">도착한 말 <b>${fin}</b> / ${ps.length}</div>
+      ${mv?`<button class="btn small ${ys.pick==='home'?'picked':''}" data-home="1">${ys.pick==='home'?'한 번 더 누르면 출발!':'새 말 내보내기'}</button>`:''}</div>`;
+  }).join('');
+  const hb=$('#yutTeams [data-home]');
+  if(hb) hb.onclick=()=>yutPick('home');
+  $('#yutResults').innerHTML=ys.results.map((r,i)=>`<button class="chip ${i===ys.sel?'sel':''}" data-i="${i}">${YNAME[r]} (${r}칸)</button>`).join('')||'<span class="muted">아직 없어요</span>';
+  $('#yutResults').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{if(!yutAITurn()){ys.sel=+c.dataset.i;yutRender();}});
+  $('#yutThrowBtn').disabled=ys.throws<=0||ys.over||ys.anim||yutAITurn();
+  $('#yutThrowBtn').textContent=yutAITurn()?'컴퓨터 차례…':'윷 던지기!';
+  if(yutAITurn()&&!ys.anim&&!ys.aiTimer) ys.aiTimer=setTimeout(()=>{ys.aiTimer=null;yutAIStep();},1300);
+  const st=$('#yutStatus');
+  st.textContent=ys.pick!=null?'👆 노란 「여기로!」를 누르거나, 같은 말을 한 번 더 누르면 움직여요.':ys.msg;
+  st.style.color=ys.over?'#3f8a4f':YT[ys.turn].color;
+}
+function yutThrow(){
+  if(ys.throws<=0||ys.over||ys.anim) return;
+  ys.anim=true; yutRender(); $('#yutBig').textContent='';
+  const sticks=document.querySelectorAll('#yutSticks .stick');
+  const flats=[0,0,0,0].map(()=>Math.random()<0.5);
+  sticks.forEach((s,i)=>{s.classList.remove('toss');void s.offsetWidth;s.style.animationDelay=(i*70)+'ms';s.classList.add('toss');});
+  setTimeout(()=>{
+    sticks.forEach((s,i)=>{s.className='stick '+(flats[i]?'flat':'round');s.innerHTML=flats[i]?'':'<span>✕</span><span>✕</span><span>✕</span>';});
+    const n=flats.filter(Boolean).length, r=n===0?5:n;
+    ys.throws--; ys.results.push(r);
+    let m=`${tn(ys.turn)}: ${YNAME[r]}! (${YANIMAL[r]}, ${r}칸)`;
+    if(r>=4){ys.throws++;m+=' 🎉 한 번 더 던져요!';}
+    else if(yutAITurn()) m+=' 컴퓨터가 어떤 말을 움직일지 생각 중…';
+    else m+= ys.results.length>1?' 쓸 결과를 고르고 말을 눌러요.':' 움직일 말을 눌러요.';
+    ys.msg=m; ys.sel=ys.results.length-1; if(ys.throws===0) ys.sel=0;
+    ys.anim=false; $('#yutBig').textContent=YNAME[r]+'!';
+    yutRender();
+  },850);
+}
+function yutMove(from){
+  if(!yutCanMove()) return;
+  const t=ys.turn, team=ys.pieces[t], steps=ys.results[ys.sel];
+  const movers=from==='home'?[team.find(p=>p.pos==='home')]:team.filter(p=>p.pos===from);
+  const dest=yutDest(from,steps);
+  ys.results.splice(ys.sel,1); ys.sel=0; ys.pick=null;
+  const already=dest==='FIN'?0:team.filter(p=>p.pos===dest).length;
+  movers.forEach(p=>p.pos=dest);
+  let m=`${tn(t)}: ${YNAME[steps]}만큼 움직였어요.`;
+  if(dest==='FIN') m=`🏁 ${tn(t)} 말 ${movers.length}개가 도착했어요!`;
+  else{
+    const caught=ys.pieces[1-t].filter(p=>p.pos===dest);
+    if(caught.length){caught.forEach(p=>p.pos='home');ys.throws++;m=`💥 ${tn(t)}이 상대 말을 잡았어요! 한 번 더 던져요!`;}
+    else if(already) m=`🤝 ${tn(t)} 말을 업었어요! 이제 함께 움직여요.`;
+  }
+  if(team.every(p=>p.pos==='FIN')){ys.over=true;ys.msg=`🎉 ${tn(t)} 승리! 모든 말이 도착했어요! 🎉`;yutRender();return;}
+  if(ys.throws===0&&ys.results.length===0){ys.turn=1-t;ys.throws=1;m+=` 이제 ${tn(ys.turn)} 차례예요!`;}
+  else if(ys.throws>0) m+= m.includes('던져요')?'':' 윷을 더 던져요.';
+  else m+=' 남은 결과로 말을 움직여요.';
+  ys.msg=m; yutRender();
+}
+yutDrawBoard(); yutReset();
+$('#yutThrowBtn').onclick=()=>{if(!yutAITurn())yutThrow();};
+$('#yutReset').onclick=yutReset;
+$('#yutCount').onchange=yutReset;
+$('#yutMode').onchange=yutReset;
+
+/* =========================================================
+   제기차기
+   ========================================================= */
+const JC=$('#jegiCanvas'), JX=JC.getContext('2d'), JW=600, JH=440, JG=410, JZONE=265;
+const OBANG=['#c8372d','#2b5a9e','#e2a72e','#3f8a4f','#ffffff'];
+let js={state:'ready',score:0,best:0,j:{x:300,y:150,vx:0,vy:0},foot:300,kickT:0,g:900,last:performance.now(),flash:'',flashT:0,keys:{},sway:0};
+const JMISS_MAX=3;
+function jegiStart(){
+  Object.assign(js,{state:'play',score:0,miss:0,lastKick:0,g:850,foot:300,flash:'시작!',flashT:.6});
+  js.j={x:300,y:110,vx:0,vy:-150};
+  $('#jegiOverlay').classList.add('hide');
+}
+function jegiKick(px){
+  if(js.state!=='play') return;
+  if(performance.now()-js.lastKick<180) return; // 찬 직후 겹쳐 눌린 터치는 무시
+  if(px!=null) js.foot=Math.max(40,Math.min(JW-40,px));
+  js.kickT=.2;
+  const j=js.j;
+  if(j.y>JZONE-10&&Math.abs(j.x-js.foot)<90){
+    js.lastKick=performance.now();
+    js.score++; js.g=Math.min(850+js.score*25,1600);
+    const h=210+Math.random()*70;
+    j.vy=-Math.sqrt(2*js.g*h);
+    j.vx=(Math.random()*2-1)*(50+Math.min(js.score*8,170));
+    js.flash=js.score%10===0?`${js.score}개! 대단해요!`:['톡!','좋아요!','잘했어요!','멋져요!'][Math.floor(Math.random()*4)]; js.flashT=.5;
+  } else {
+    js.miss++;
+    if(js.miss>=JMISS_MAX){jegiEnd('miss');return;}
+    js.flash=`헛발질 ${js.miss}번! `+(j.y<=JZONE-10?'조금 더 기다려요':'제기 아래를 눌러요'); js.flashT=.8;
+  }
+}
+function jegiEnd(why){
+  js.state='over'; const nb=js.score>js.best; js.best=Math.max(js.best,js.score);
+  $('#jegiOvTitle').textContent=`${js.score}개 찼어요!`;
+  $('#jegiOvText').innerHTML=(why==='miss'?'😵 헛발질 3번으로 끝났어요.<br>':'🍂 제기가 땅에 떨어졌어요.<br>')+
+    (nb&&js.score>0?'🏆 새 최고 기록이에요!':`최고 기록: ${js.best}개`);
+  $('#jegiStart').textContent='다시 하기';
+  $('#jegiOverlay').classList.remove('hide');
+}
+function drawJegi(x,y,vx,t){
+  JX.save(); JX.translate(x,y); JX.rotate(Math.max(-.4,Math.min(.4,vx/600)));
+  for(let i=0;i<7;i++){
+    const a=(i-3)*.16, sw=Math.sin(t*12+i)*4;
+    JX.strokeStyle=OBANG[i%5]; JX.lineWidth=6; JX.lineCap='round';
+    JX.beginPath(); JX.moveTo(0,-4);
+    JX.quadraticCurveTo(Math.sin(a)*24+sw,-30,Math.sin(a)*40+sw*1.6,-62+Math.abs(i-3)*5); JX.stroke();
+    if(i%5===4){JX.strokeStyle='#bbb';JX.lineWidth=1;JX.stroke();}
+  }
+  JX.fillStyle='#d9a521'; JX.strokeStyle='#8a6410'; JX.lineWidth=2;
+  JX.beginPath(); JX.ellipse(0,0,16,7,0,0,Math.PI*2); JX.fill(); JX.stroke();
+  JX.fillStyle='#8a6410'; JX.fillRect(-3,-2,6,4);
+  JX.restore();
+}
+function drawFoot(fx,lift){
+  const b=JG-8-lift;
+  JX.fillStyle='#2b5a9e'; JX.strokeStyle='#1d3d6b'; JX.lineWidth=3;
+  JX.beginPath(); JX.moveTo(fx-30,b-150); JX.lineTo(fx+26,b-150); JX.lineTo(fx+20,b-40); JX.lineTo(fx-20,b-40); JX.closePath(); JX.fill(); JX.stroke();
+  JX.fillStyle='#fff'; JX.strokeStyle='#5a4a3a';
+  JX.beginPath(); JX.moveTo(fx-20,b-46); JX.lineTo(fx-22,b-8);
+  JX.quadraticCurveTo(fx-20,b+2,fx-4,b+2); JX.lineTo(fx+30,b);
+  JX.quadraticCurveTo(fx+48,b-2,fx+52,b-16); JX.quadraticCurveTo(fx+40,b-12,fx+30,b-20);
+  JX.lineTo(fx+20,b-46); JX.closePath(); JX.fill(); JX.stroke();
+  JX.fillStyle='#e9e2d0'; JX.fillRect(fx-21,b-48,42,8);
+}
+function jegiDraw(t){
+  const sky=JX.createLinearGradient(0,0,0,JH); sky.addColorStop(0,'#bfe3f7'); sky.addColorStop(1,'#eaf6fb');
+  JX.fillStyle=sky; JX.fillRect(0,0,JW,JH);
+  // 초가집 실루엣
+  JX.fillStyle='#d8c39a'; JX.fillRect(40,250,150,110); JX.fillStyle='#b99a5e';
+  JX.beginPath(); JX.ellipse(115,250,100,40,0,Math.PI,0); JX.fill();
+  JX.fillStyle='#7a5a3a'; JX.fillRect(95,300,36,60);
+  JX.fillStyle='rgba(63,138,79,.18)'; JX.fillRect(0,JZONE,JW,JG-JZONE);
+  JX.fillStyle='rgba(63,138,79,.8)'; JX.font='18px Jua'; JX.textAlign='right'; JX.fillText('▼ 여기서 차요',JW-14,JZONE+24);
+  JX.fillStyle='#c9a46a'; JX.fillRect(0,JG,JW,JH-JG);
+  const lift=js.kickT>0?Math.sin((js.kickT/.2)*Math.PI)*36:0;
+  drawFoot(js.foot,lift);
+  drawJegi(js.j.x,js.j.y,js.j.vx,t);
+  JX.textAlign='left'; JX.fillStyle='#3b2a1a'; JX.font='34px Jua'; JX.fillText(`${js.score}개`,18,48);
+  JX.textAlign='right'; JX.font='20px Jua'; JX.fillText(`최고 ${js.best}개`,JW-16,40);
+  // 헛발질 기회 표시: 남은 기회 ❤, 쓴 기회 ✖
+  const m=js.miss||0; JX.font='22px Jua';
+  JX.fillText('헛발질 '+'✖'.repeat(m)+'❤'.repeat(JMISS_MAX-m),JW-16,70);
+  if(js.flashT>0){JX.textAlign='center';JX.globalAlpha=Math.min(1,js.flashT*3);JX.fillStyle='#c8372d';JX.font='32px Jua';JX.fillText(js.flash,JW/2,110);JX.globalAlpha=1;}
+}
+function jegiLoop(now){
+  const dt=Math.min((now-js.last)/1000,.033); js.last=now;
+  if(activePanel()==='p-jegi'){
+    if(js.state==='play'){
+      const j=js.j; j.vy+=js.g*dt; j.x+=j.vx*dt; j.y+=j.vy*dt;
+      if(j.x<30){j.x=30;j.vx=Math.abs(j.vx);} if(j.x>JW-30){j.x=JW-30;j.vx=-Math.abs(j.vx);}
+      if(js.keys.ArrowLeft) js.foot=Math.max(40,js.foot-450*dt);
+      if(js.keys.ArrowRight) js.foot=Math.min(JW-40,js.foot+450*dt);
+      if(j.y>=JG-6){j.y=JG-6;jegiEnd();}
+    }
+    js.kickT=Math.max(0,js.kickT-dt); js.flashT=Math.max(0,js.flashT-dt);
+    jegiDraw(now/1000);
+  }
+  requestAnimationFrame(jegiLoop);
+}
+const canvasX=(c,e,W)=>{const r=c.getBoundingClientRect();return (e.clientX-r.left)*W/r.width;};
+JC.addEventListener('pointerdown',e=>{e.preventDefault();jegiKick(canvasX(JC,e,JW));});
+JC.addEventListener('pointermove',e=>{if((e.pointerType==='mouse'||e.buttons>0)&&js.state==='play')js.foot=Math.max(40,Math.min(JW-40,canvasX(JC,e,JW)));});
+$('#jegiStart').onclick=jegiStart;
+requestAnimationFrame(jegiLoop);
+
+/* =========================================================
+   투호
+   ========================================================= */
+const TC=$('#tuhoCanvas'), TX=TC.getContext('2d'), TW=760, TH=420, TG=392;
+const TS={x:90,y:300}, TGRAV=900, POT_H=112, MOUTH=48, ANG_MIN=20, ANG_MAX=75, CHARGE_SEC=1.6;
+const tRad=()=>ts.angle*Math.PI/180;
+const TTEAM=[{name:'청팀',color:'#2b5a9e'},{name:'홍팀',color:'#c8372d'}];
+let ts={state:'ready',mode:2,turn:0,score:[0,0],thrown:[0,0],per:5,power:0,lastPower:.5,charging:false,angle:45,keys:{},arrow:null,potX:560,inPot:[],msg:'',msgT:0,last:performance.now()};
+const tVel=p=>300+p*600;
+function tuhoNewPot(){ts.potX=440+Math.random()*250;}
+function tuhoStart(){
+  ts.mode=+$('#tuhoMode').value;
+  Object.assign(ts,{state:'aim',turn:0,score:[0,0],thrown:[0,0],per:ts.mode===2?5:10,power:0,charging:false,arrow:null,inPot:[],msg:'',msgT:0});
+  tuhoNewPot(); $('#tuhoOverlay').classList.add('hide');
+  if(document.activeElement) document.activeElement.blur();
+}
+function tuhoCharge(){ // 누르기 시작: 힘 모으기
+  if(ts.state==='ready'||ts.state==='over'){tuhoStart();return;}
+  if(ts.state!=='aim'||ts.charging) return;
+  ts.charging=true; ts.power=0; $('#tFire').classList.add('on');
+}
+function tuhoRelease(){ // 손 떼기: 모은 힘으로 발사
+  $('#tFire').classList.remove('on');
+  if(!ts.charging) return;
+  ts.charging=false;
+  if(ts.state!=='aim') return;
+  ts.lastPower=ts.power;
+  const v=tVel(ts.power), a=tRad();
+  ts.arrow={x:TS.x,y:TS.y,vx:v*Math.cos(a),vy:-v*Math.sin(a),stopped:false,ang:-a,fail:false};
+  ts.state='fly'; ts.thrown[ts.turn]++;
+}
+function potHalfAt(y){ // 항아리 몸통 절반 너비 (y 위치)
+  const top=TG-POT_H; if(y<top) return 0;
+  const k=(y-top)/POT_H; // 0 위 ~ 1 바닥
+  if(k<.18) return MOUTH/2+4;
+  return MOUTH/2+4+Math.sin(Math.min(1,(k-.18)/.82)*Math.PI*.85)*34;
+}
+function tuhoResult(ok,text){
+  ts.state='result'; ts.msg=text; ts.msgT=1.5;
+  if(ok) ts.score[ts.turn]++;
+}
+function tuhoNext(){
+  const total=ts.per*(ts.mode===2?2:1), done=ts.thrown[0]+ts.thrown[1];
+  if(done>=total){
+    ts.state='over';
+    let title,text;
+    if(ts.mode===1){title=`${ts.score[0]} / ${ts.per}개 성공!`;text=ts.score[0]>=7?'🏆 투호 달인이에요!':ts.score[0]>=4?'👍 잘했어요!':'다시 도전해 볼까요?';}
+    else{const [a,b]=ts.score;title=a===b?'비겼어요!':`${TTEAM[a>b?0:1].name} 승리! 🎉`;text=`청팀 ${a}개 · 홍팀 ${b}개`;}
+    $('#tuhoOvTitle').textContent=title; $('#tuhoOvText').textContent=text; $('#tuhoStart').textContent='다시 하기';
+    $('#tuhoOverlay').classList.remove('hide'); return;
+  }
+  if(ts.mode===2) ts.turn=1-ts.turn;
+  ts.arrow=null; ts.state='aim'; tuhoNewPot();
+}
+function tuhoUpdate(dt){
+  if(ts.state==='aim'){
+    if(ts.keys.up) ts.angle=Math.min(ANG_MAX,ts.angle+30*dt);
+    if(ts.keys.down) ts.angle=Math.max(ANG_MIN,ts.angle-30*dt);
+    if(ts.charging) ts.power=Math.min(1,ts.power+dt/CHARGE_SEC);
+  }
+  if(ts.state==='fly'){
+    const a=ts.arrow, steps=4;
+    for(let s=0;s<steps&&ts.state==='fly';s++){
+      const d=dt/steps, py=a.y;
+      a.vy+=TGRAV*d; a.x+=a.vx*d; a.y+=a.vy*d; a.ang=Math.atan2(a.vy,a.vx);
+      const mouthY=TG-POT_H, dx=a.x-ts.potX;
+      if(!a.fail&&py<mouthY&&a.y>=mouthY){
+        if(Math.abs(dx)<MOUTH/2-2){
+          ts.inPot.push({dx:dx*.6,ang:a.ang,color:TTEAM[ts.turn].color});
+          ts.arrow=null; tuhoResult(true,'쏙! 들어갔어요! 🎉'); return;
+        } else if(Math.abs(dx)<MOUTH/2+8){a.fail=true;a.vx=-a.vx*.35;a.vy=-180;ts.msg='앗, 입구에 맞았어요!';ts.msgT=1;}
+      }
+      if(a.y>mouthY&&Math.abs(dx)<potHalfAt(a.y)){a.fail=true;a.vx=(dx<0?-1:1)*60;a.vy=Math.max(a.vy*.2,50);a.x=ts.potX+(dx<0?-1:1)*(potHalfAt(a.y)+2);}
+      if(a.y>=TG){a.y=TG;a.ang=a.vx>=0?.15:Math.PI-.15;
+        const near=Math.abs(dx)<120;
+        tuhoResult(false,a.x<ts.potX?(near?'아깝다! 조금 짧았어요':'너무 약했어요'):(near?'아깝다! 조금 길었어요':'너무 셌어요'));return;}
+      if(a.x>TW+60){tuhoResult(false,'너무 멀리 날아갔어요!');return;}
+    }
+  }
+  if(ts.state==='result'){ts.msgT-=dt;if(ts.msgT<=0)tuhoNext();}
+  else if(ts.msgT>0) ts.msgT-=dt;
+}
+function drawArrow(x,y,ang,color){
+  TX.save();TX.translate(x,y);TX.rotate(ang);
+  TX.strokeStyle='#7a5a3a';TX.lineWidth=4;TX.beginPath();TX.moveTo(0,0);TX.lineTo(-64,0);TX.stroke();
+  TX.fillStyle='#555';TX.beginPath();TX.moveTo(6,0);TX.lineTo(-6,-5);TX.lineTo(-6,5);TX.fill();
+  TX.fillStyle=color;TX.beginPath();TX.moveTo(-50,0);TX.lineTo(-66,-8);TX.lineTo(-62,0);TX.lineTo(-66,8);TX.fill();
+  TX.restore();
+}
+function drawPot(cx){
+  const top=TG-POT_H;
+  // 꽂힌 화살 (항아리 뒤)
+  ts.inPot.forEach(p=>drawArrow(cx+p.dx+Math.cos(p.ang)*30,top+Math.sin(p.ang)*30,p.ang,p.color));
+  const g=TX.createLinearGradient(cx-40,0,cx+40,0); g.addColorStop(0,'#2f5c55');g.addColorStop(.45,'#5f9a8d');g.addColorStop(1,'#244a44');
+  TX.fillStyle=g; TX.strokeStyle='#1b3531'; TX.lineWidth=3;
+  TX.beginPath(); TX.moveTo(cx-potHalfAt(top+1),top);
+  for(let y=top;y<=TG;y+=4) TX.lineTo(cx-potHalfAt(y),y);
+  for(let y=TG;y>=top;y-=4) TX.lineTo(cx+potHalfAt(y),y);
+  TX.closePath(); TX.fill(); TX.stroke();
+  // 귀
+  [-1,1].forEach(s=>{TX.fillStyle='#4a8278';TX.fillRect(cx+s*(MOUTH/2+4)+(s<0?-12:0),top+8,12,26);TX.strokeRect(cx+s*(MOUTH/2+4)+(s<0?-12:0),top+8,12,26);});
+  TX.fillStyle='#16302c'; TX.beginPath(); TX.ellipse(cx,top,MOUTH/2+4,6,0,0,Math.PI*2); TX.fill(); TX.stroke();
+  TX.fillStyle='#e2a72e'; TX.fillRect(cx-30,TG-50,60,5);
+}
+function tuhoDraw(){
+  const sky=TX.createLinearGradient(0,0,0,TH);sky.addColorStop(0,'#d8eef7');sky.addColorStop(1,'#f5f1e4');
+  TX.fillStyle=sky;TX.fillRect(0,0,TW,TH);
+  // 기와 담장
+  TX.fillStyle='#e8dcc4';TX.fillRect(0,250,TW,TG-250);TX.fillStyle='#4a4a52';TX.fillRect(0,238,TW,16);
+  for(let x=0;x<TW;x+=22){TX.beginPath();TX.arc(x+11,254,10,0,Math.PI);TX.fill();}
+  TX.fillStyle='#bfa77a';TX.fillRect(0,TG,TW,TH-TG);
+  TX.strokeStyle='#fff';TX.setLineDash([8,6]);TX.lineWidth=3;TX.beginPath();TX.moveTo(TS.x+20,TG);TX.lineTo(TS.x+20,TG+28);TX.stroke();TX.setLineDash([]);
+  // 도움선
+  const help=+$('#tuhoHelp').value;
+  if(ts.state==='aim'&&help>0){
+    const v=tVel(ts.charging?ts.power:ts.lastPower),vx=v*Math.cos(tRad()),vy=-v*Math.sin(tRad());
+    const tEnd=(vy*-1+Math.sqrt(vy*vy+2*TGRAV*(TG-TS.y)))/TGRAV, lim=tEnd*help;
+    TX.fillStyle='rgba(59,42,26,.45)';
+    for(let t=.05;t<lim;t+=.05){const x=TS.x+vx*t,y=TS.y+vy*t+.5*TGRAV*t*t;if(y>TG)break;TX.beginPath();TX.arc(x,y,3.5,0,Math.PI*2);TX.fill();}
+  }
+  drawPot(ts.potX);
+  const col=TTEAM[ts.turn].color;
+  if(ts.state==='aim'||ts.state==='ready'){
+    // 각도 표시 (반원 눈금)
+    TX.strokeStyle='rgba(59,42,26,.25)';TX.lineWidth=2;TX.beginPath();TX.arc(TS.x,TS.y,78,-ANG_MAX*Math.PI/180,-ANG_MIN*Math.PI/180);TX.stroke();
+    drawArrow(TS.x,TS.y,-tRad(),col);
+    TX.fillStyle='#3b2a1a';TX.font='20px Jua';TX.textAlign='left';TX.fillText(`각도 ${Math.round(ts.angle)}°`,TS.x-30,TS.y+50);
+  }
+  if(ts.arrow) drawArrow(ts.arrow.x,ts.arrow.y,ts.arrow.ang,col);
+  // 힘 막대
+  const gx=22,gy=90,gh=200;
+  TX.fillStyle='#fff';TX.strokeStyle='#3b2a1a';TX.lineWidth=3;TX.fillRect(gx,gy,24,gh);TX.strokeRect(gx,gy,24,gh);
+  const pg=TX.createLinearGradient(0,gy+gh,0,gy);pg.addColorStop(0,'#3f8a4f');pg.addColorStop(.5,'#e2a72e');pg.addColorStop(1,'#c8372d');
+  TX.fillStyle=pg;TX.fillRect(gx+3,gy+gh-(gh-6)*ts.power-3,18,(gh-6)*ts.power);
+  TX.fillStyle='#3b2a1a';TX.font='16px Jua';TX.textAlign='center';TX.fillText('힘',gx+12,gy-10);
+  if(ts.thrown[0]+ts.thrown[1]>0){ // 지난번 힘 표시
+    const ly=gy+gh-3-(gh-6)*ts.lastPower; TX.strokeStyle='#3b2a1a';TX.lineWidth=2;TX.setLineDash([4,3]);
+    TX.beginPath();TX.moveTo(gx-4,ly);TX.lineTo(gx+28,ly);TX.stroke();TX.setLineDash([]);
+    TX.textAlign='left';TX.font='13px Jua';TX.fillText('지난번',gx+30,ly+4);
+  }
+  if(ts.state==='aim'&&!ts.charging&&ts.msgT<=0){TX.textAlign='center';TX.font='22px Jua';TX.fillStyle='#3f8a4f';
+    TX.fillText('↑↓ 각도 정하고, 스페이스바(꾹 눌러 던지기)를 누르고 있다가 떼요!',TW/2,130);}
+  // 점수판
+  TX.textAlign='left';TX.font='24px Jua';
+  if(ts.mode===2){
+    [0,1].forEach(i=>{TX.fillStyle=TTEAM[i].color;TX.fillText(`${TTEAM[i].name} ${ts.score[i]}개  (남은 화살 ${ts.per-ts.thrown[i]})`,70,34+i*30);});
+    if(ts.state!=='ready'&&ts.state!=='over'){TX.textAlign='right';TX.fillStyle=col;TX.font='26px Jua';TX.fillText(`${TTEAM[ts.turn].name} 차례`,TW-16,36);}
+  } else {TX.fillStyle='#3b2a1a';TX.fillText(`넣은 화살 ${ts.score[0]}개  (남은 화살 ${ts.per-ts.thrown[0]})`,70,34);}
+  if(ts.msgT>0){TX.textAlign='center';TX.font='34px Jua';TX.fillStyle=ts.msg.includes('쏙')?'#3f8a4f':'#c8372d';TX.fillText(ts.msg,TW/2,130);}
+}
+function tuhoLoop(now){
+  const dt=Math.min((now-ts.last)/1000,.033); ts.last=now;
+  if(activePanel()==='p-tuho'){tuhoUpdate(dt);tuhoDraw();}
+  requestAnimationFrame(tuhoLoop);
+}
+// 화면(캔버스)·발사 단추: 누르고 있으면 힘 모으기, 떼면 발사
+[TC,$('#tFire')].forEach(el=>{
+  el.addEventListener('pointerdown',e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId);}catch(_){}tuhoCharge();});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,tuhoRelease));
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+});
+// 각도 단추: 누르고 있는 동안 계속 움직임
+[['#tUp','up'],['#tDown','down']].forEach(([id,k])=>{
+  const el=$(id);
+  el.addEventListener('pointerdown',e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId);}catch(_){}ts.keys[k]=true;if(ts.state==='aim')ts.angle=Math.max(ANG_MIN,Math.min(ANG_MAX,ts.angle+(k==='up'?1:-1)));});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=>el.addEventListener(ev,()=>ts.keys[k]=false));
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+});
+$('#tuhoStart').onclick=tuhoStart;
+requestAnimationFrame(tuhoLoop);
+
+/* ---------- 키보드 (제기, 투호) ---------- */
+addEventListener('keydown',e=>{
+  const p=activePanel();
+  if(p==='p-jegi'){
+    if(e.code==='Space'){e.preventDefault();if(js.state==='play')jegiKick(null);else jegiStart();}
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();js.keys[e.key]=true;}
+  }
+  if(p==='p-tuho'){
+    if(e.code==='Space'){e.preventDefault();if(!e.repeat)tuhoCharge();}
+    if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+      e.preventDefault(); if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur();
+      ts.keys[e.key==='ArrowUp'?'up':'down']=true;
+    }
+  }
+});
+addEventListener('keyup',e=>{
+  js.keys[e.key]=false;
+  if(e.key==='ArrowUp') ts.keys.up=false;
+  if(e.key==='ArrowDown') ts.keys.down=false;
+  if(activePanel()==='p-tuho'&&e.code==='Space'){e.preventDefault();tuhoRelease();}
+});
+addEventListener('blur',()=>{ts.keys={};tuhoRelease();});
+
+/* =========================================================
+   고누 (우물고누)
+   ========================================================= */
+const GP=[{x:70,y:70},{x:330,y:70},{x:70,y:330},{x:330,y:330},{x:200,y:200}];
+const GE=[[0,1],[0,2],[1,3],[0,4],[1,4],[2,4],[3,4]];
+const GADJ=GP.map((_,i)=>GE.filter(e=>e.includes(i)).map(e=>e[0]===i?e[1]:e[0]));
+const GNAME=['검은 돌','흰 돌'];
+let gs;
+function gonuLegal(board,p,first){
+  const empty=board.indexOf(-1);
+  let ms=GADJ[empty].filter(i=>board[i]===p).map(i=>[i,empty]);
+  if(first) ms=ms.filter(m=>gonuLegal(gonuApply(board,m),1-p,false).length>0);
+  return ms;
+}
+function gonuApply(b,[f,t]){const n=b.slice();n[t]=n[f];n[f]=-1;return n;}
+function gonuDrawBoard(){
+  let h='';
+  GE.forEach(([a,b])=>h+=`<line x1="${GP[a].x}" y1="${GP[a].y}" x2="${GP[b].x}" y2="${GP[b].y}" stroke="#7a5a3a" stroke-width="6" stroke-linecap="round"/>`);
+  h+=`<g transform="translate(200,345)"><ellipse rx="40" ry="22" fill="#4f86b8" stroke="#2d5478" stroke-width="5"/>
+      <ellipse rx="26" ry="12" fill="#2d6aa0"/><text y="50" text-anchor="middle" font-family="Jua" font-size="20" fill="#2d5478">우물</text></g>`;
+  GP.forEach(p=>h+=`<circle cx="${p.x}" cy="${p.y}" r="14" fill="#fffaf0" stroke="#7a5a3a" stroke-width="4"/>`);
+  h+='<g id="gonuPieces"></g>';
+  $('#gonuBoard').innerHTML=h;
+  let ph='';
+  for(let i=0;i<4;i++){
+    const w=i>=2;
+    ph+=`<g class="gp" id="gp${i}"><circle class="ring" r="36" fill="none" stroke="#ffd84a" stroke-width="6"/>
+     <circle r="28" fill="${w?'#fdfcf7':'#222'}" stroke="${w?'#8a6a3a':'#000'}" stroke-width="3"/>
+     <circle r="10" cx="-8" cy="-9" fill="${w?'#fff':'#555'}" opacity=".6"/></g>`;
+  }
+  $('#gonuPieces').innerHTML=ph;
+  for(let i=0;i<4;i++) $('#gp'+i).onclick=()=>gonuClick(i);
+}
+function gonuReset(){
+  gs={board:[0,0,1,1,-1],pieces:[0,1,2,3],turn:0,moves:0,over:false,ai:$('#gonuMode').value==='ai',busy:false};
+  $('#gonuWhiteLabel').textContent=gs.ai?'컴퓨터':'친구';
+  gonuRender('검은 돌부터 시작해요! 반짝이는 돌을 눌러요.');
+}
+function gonuRender(msg){
+  const ms=gs.over?[]:gonuLegal(gs.board,gs.turn,gs.moves===0);
+  const myTurn=!gs.over&&!gs.busy&&!(gs.ai&&gs.turn===1);
+  for(let i=0;i<4;i++){
+    const at=gs.pieces[i], el=$('#gp'+i);
+    el.style.transform=`translate(${GP[at].x}px,${GP[at].y}px)`;
+    el.classList.toggle('movable',myTurn&&ms.some(m=>m[0]===at));
+  }
+  const st=$('#gonuStatus'); st.textContent=msg; st.style.color=gs.over?'#3f8a4f':'#3b2a1a';
+}
+function gonuDoMove(m){
+  const pi=gs.pieces.indexOf(m[0]); gs.pieces[pi]=m[1];
+  gs.board=gonuApply(gs.board,m); gs.moves++; gs.turn=1-gs.turn;
+  const next=gonuLegal(gs.board,gs.turn,false);
+  if(next.length===0){gs.over=true;gonuRender(`🎉 ${GNAME[1-gs.turn]} 승리! ${GNAME[gs.turn]}이 꼼짝 못 해요!`);return;}
+  if(gs.moves>=60){gs.over=true;gonuRender('60수가 지나서 비겼어요! 🤝');return;}
+  gonuRender(`${GNAME[gs.turn]} 차례예요.`+(gs.ai&&gs.turn===1?' (컴퓨터가 생각 중…)':''));
+  if(gs.ai&&gs.turn===1){gs.busy=true;setTimeout(gonuAI,800);}
+}
+function gonuClick(i){
+  if(gs.over||gs.busy||(gs.ai&&gs.turn===1)) return;
+  const at=gs.pieces[i]; if(gs.board[at]!==gs.turn) return;
+  const m=gonuLegal(gs.board,gs.turn,gs.moves===0).find(m=>m[0]===at);
+  if(m) gonuDoMove(m);
+}
+function gonuAI(){
+  gs.busy=false; if(gs.over) return;
+  const ms=gonuLegal(gs.board,1,gs.moves===0);
+  const win=ms.find(m=>gonuLegal(gonuApply(gs.board,m),0,false).length===0);
+  const safe=ms.filter(m=>{const b=gonuApply(gs.board,m);return !gonuLegal(b,0,false).some(r=>gonuLegal(gonuApply(b,r),1,false).length===0);});
+  const pool=safe.length?safe:ms;
+  const pick=Math.random()<.85?pool:ms;
+  gonuDoMove(win||pick[Math.floor(Math.random()*pick.length)]);
+}
+gonuDrawBoard(); gonuReset();
+$('#gonuReset').onclick=gonuReset;
+$('#gonuMode').onchange=gonuReset;
+</script>
+</body>
+</html>
