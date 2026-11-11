@@ -82,6 +82,9 @@
 
   /* 꾸미기 패널 */
   .tabs{display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:12px;}
+  .btn.reset{width:100%; padding:10px; font-size:15px;}
+  .auto-reset{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-dim); margin:8px 2px 12px; cursor:pointer;}
+  .auto-reset input{accent-color:var(--accent2);}
   .tab{border:none; border-radius:10px; padding:9px 2px; background:var(--chip); color:var(--text-dim);
     font-size:14px; font-weight:700;}
   .tab.on{background:var(--accent2); color:#2a0f3a;}
@@ -170,6 +173,8 @@
   </section>
 
   <aside class="panel">
+    <button class="btn reset" id="resetBtn" title="배경·꾸미기·효과·크기 조절을 모두 처음 상태로">↺ 꾸미기 처음으로</button>
+    <label class="auto-reset"><input type="checkbox" id="autoReset" checked> 사진을 찍으면 자동으로 처음 상태로</label>
     <div class="tabs" id="tabs">
       <button class="tab on" data-tab="bg">배경</button>
       <button class="tab" data-tab="head">머리</button>
@@ -1081,6 +1086,19 @@ makeGrid($('eyesGrid'), EYES, 'eyes');
 makeGrid($('faceGrid'), FACES, 'face', true);
 makeGrid($('fxGrid'), FXS, 'fx');
 makeGrid($('partGrid'), PARTS, 'particle');
+
+/* ---------------- 처음 상태로 ---------------- */
+const DEFAULTS = { bg:'none', head:'none', eyes:'none', fx:'none', particle:'none',
+  headS:1, eyeS:1, faceS:1, headY:0, eyeY:0 };
+function resetAll(){
+  Object.assign(state, DEFAULTS);
+  state.face.clear();
+  for(const k of ['headS','eyeS','faceS','headY','eyeY']) $(k).value = DEFAULTS[k];
+  [['bgGrid','bg'],['headGrid','head'],['eyesGrid','eyes'],['fxGrid','fx'],['partGrid','particle']]
+    .forEach(([id,key])=>refreshGrid($(id), key));
+  refreshGrid($('faceGrid'), 'face', true);
+}
+$('resetBtn').onclick=resetAll;
 document.fonts?.ready.then(()=>{ bgCache.clear(); makeBgGrid(); });
 
 $('tabs').onclick=e=>{
@@ -1272,6 +1290,7 @@ $('shootBtn').onclick=async ()=>{
   const shot=document.createElement('canvas'); shot.width=view.width; shot.height=view.height;
   shot.getContext('2d').drawImage(view,0,0);
   addToGallery(shot);
+  if($('autoReset').checked) resetAll(); // 다음 사람을 위해 처음 상태로
   state.busy=false; $('shootBtn').disabled=false;
   openResult(shot);
 };
