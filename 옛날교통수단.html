@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>옛날 교통수단 여행</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#fbf3e0;
+    --ink:#3b2a1a;
+    --ink-dim:#7a6450;
+    --wood:#8a5a32;
+    --accent:#d9452b;
+    --teal:#2aa6a0;
+    --gold:#f2b632;
+    --card:#fffaf0;
+    --line:#e3d2b0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    font-family:'Jua','Malgun Gothic',sans-serif;
+    background:#efe2c4 radial-gradient(ellipse at top,#fff6df,#e9d6ad 80%);
+    color:var(--ink);
+    overflow-x:hidden;
+    -webkit-user-select:none;user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .hidden{display:none !important;}
+  button{font-family:inherit;cursor:pointer;}
+  .screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px;}
+
+  /* 타이틀 */
+  #title{justify-content:center;text-align:center;gap:14px;}
+  #title h1{font-size:clamp(36px,7vw,72px);margin:0;color:var(--ink);text-shadow:3px 3px 0 #fff,6px 6px 0 rgba(0,0,0,.08);}
+  #title .sub{font-size:clamp(16px,2.4vw,24px);color:var(--ink-dim);margin:0;}
+  #titleArt{width:min(720px,92vw);aspect-ratio:16/7;border-radius:24px;border:4px solid var(--wood);background:#cfe9f7;box-shadow:0 10px 0 rgba(0,0,0,.1);}
+  .bigbtn{
+    font-size:clamp(22px,3vw,30px);padding:14px 44px;border:none;border-radius:999px;
+    background:var(--accent);color:#fff;box-shadow:0 6px 0 #9c2a17;transition:transform .1s;
+  }
+  .bigbtn:hover{transform:translateY(-2px);}
+  .bigbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #9c2a17;}
+  .ghost{background:#fff;color:var(--ink);box-shadow:0 6px 0 var(--line);}
+  .ghost:active{box-shadow:0 2px 0 var(--line);}
+
+  /* 지도 */
+  #map h2{margin:6px 0 2px;font-size:clamp(26px,4vw,40px);}
+  #map .hint{margin:0 0 14px;color:var(--ink-dim);font-size:18px;text-align:center;}
+  .group-title{width:min(1100px,100%);font-size:22px;margin:10px 0 8px;display:flex;align-items:center;gap:8px;}
+  .group-title span{font-size:15px;color:var(--ink-dim);}
+  .cards{width:min(1100px,100%);display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;}
+  .card{
+    position:relative;background:var(--card);border:3px solid var(--line);border-radius:20px;padding:10px;
+    text-align:left;color:var(--ink);box-shadow:0 6px 0 var(--line);transition:transform .12s;
+  }
+  .card:hover{transform:translateY(-4px);border-color:var(--teal);}
+  .card canvas{width:100%;aspect-ratio:16/9;border-radius:12px;display:block;background:#cfe9f7;}
+  .card .nm{font-size:26px;margin:8px 4px 0;display:flex;justify-content:space-between;align-items:center;}
+  .card .pw{display:inline-block;font-size:14px;padding:3px 10px;border-radius:999px;background:#e8f6f5;color:#1d7c77;margin:4px 4px 0;}
+  .card .pw.machine{background:#eee6ff;color:#5b3fb0;}
+  .card .pw.animal{background:#fff0dc;color:#a35b10;}
+  .card .pw.nature{background:#e3f3ff;color:#1b66a3;}
+  .stars{font-size:20px;letter-spacing:2px;color:var(--gold);}
+  .stars .off{color:#d8ccb4;}
+  .stamp{
+    position:absolute;top:14px;right:14px;width:66px;height:66px;border-radius:50%;
+    border:4px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center;
+    font-size:17px;transform:rotate(-14deg);background:rgba(255,250,240,.85);line-height:1.05;text-align:center;
+  }
+  .maprow{display:flex;gap:12px;margin:22px 0 10px;flex-wrap:wrap;justify-content:center;}
+  .small{font-size:15px;color:var(--ink-dim);background:none;border:none;text-decoration:underline;}
+
+  /* 플레이 */
+  #play{padding:10px 16px;gap:10px;}
+  .topbar{width:100%;max-width:1200px;display:flex;gap:8px;justify-content:space-between;align-items:center;}
+  .topbar .l,.topbar .r{display:flex;gap:8px;}
+  .tbtn{font-size:17px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink);}
+  .tbtn:active{transform:translateY(2px);}
+  #game{
+    position:relative;width:min(100%, calc((100vh - 190px) * 16 / 9));max-width:1200px;aspect-ratio:16/9;
+    border-radius:18px;overflow:hidden;border:4px solid var(--wood);background:#000;box-shadow:0 8px 0 rgba(0,0,0,.12);
+  }
+  #cv{width:100%;height:100%;display:block;touch-action:none;}
+  .ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(40,25,10,.55);padding:14px;}
+  .panel{
+    background:var(--paper);border:4px solid var(--wood);border-radius:22px;padding:18px 22px;width:min(640px,100%);
+    max-height:100%;overflow:auto;text-align:center;box-shadow:0 10px 0 rgba(0,0,0,.2);
+  }
+  .panel h3{margin:0;font-size:clamp(26px,4vw,40px);}
+  .panel .tag{display:inline-block;margin:6px 0;padding:4px 14px;border-radius:999px;background:var(--teal);color:#fff;font-size:17px;}
+  .fact{background:#fff;border:2px dashed var(--line);border-radius:14px;padding:10px 14px;margin:10px 0;font-size:19px;line-height:1.5;}
+  .mission{font-size:20px;margin:8px 0;line-height:1.45;}
+  .keys{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 14px;}
+  .keys div{background:#fff;border:2px solid var(--line);border-radius:12px;padding:6px 12px;font-size:16px;}
+  .keys b{color:var(--accent);font-weight:normal;}
+  .resstars{font-size:54px;color:var(--gold);letter-spacing:6px;margin:4px 0;}
+  .resstars .off{color:#d8ccb4;}
+  .quiz{margin-top:10px;text-align:left;}
+  .quiz .q{font-size:21px;margin:6px 0 10px;text-align:center;}
+  .choice{
+    display:block;width:100%;margin:8px 0;padding:11px 14px;font-size:19px;text-align:left;
+    border-radius:14px;border:3px solid var(--line);background:#fff;color:var(--ink);
+  }
+  .choice:hover{border-color:var(--teal);}
+  .choice.right{background:#e2f7e8;border-color:#3bb36a;}
+  .choice.wrong{background:#fde6e2;border-color:var(--accent);animation:shake .35s;}
+  .explain{font-size:18px;color:#1d7c77;min-height:26px;text-align:center;margin:6px 0;}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+  #pad{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;width:100%;max-width:1200px;}
+  .pbtn{
+    flex:1 1 0;min-width:110px;max-width:260px;min-height:64px;font-size:21px;border:none;border-radius:18px;
+    background:#fff;color:var(--ink);box-shadow:0 6px 0 var(--line);touch-action:none;
+  }
+  .pbtn.on{transform:translateY(4px);box-shadow:0 2px 0 var(--line);background:#fff2d6;}
+
+  /* 정리 활동 */
+  #sort h2{margin:6px 0 4px;font-size:clamp(26px,4vw,40px);}
+  #sort .hint{margin:0 0 12px;color:var(--ink-dim);font-size:18px;text-align:center;}
+  .tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;min-height:62px;width:min(1100px,100%);margin-bottom:14px;}
+  .chip{font-size:22px;padding:10px 18px;border-radius:14px;border:3px solid var(--line);background:#fff;color:var(--ink);box-shadow:0 4px 0 var(--line);}
+  .chip.sel{border-color:var(--accent);background:#fff2d6;transform:translateY(-3px);}
+  .chip.wrong{animation:shake .35s;border-color:var(--accent);}
+  .bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;width:min(1100px,100%);}
+  .bin{border-radius:20px;border:3px dashed var(--line);background:var(--card);padding:12px;min-height:150px;text-align:center;color:var(--ink);}
+  .bin:hover{border-color:var(--teal);}
+  .bin h4{margin:0 0 4px;font-size:24px;}
+  .bin p{margin:0 0 8px;font-size:15px;color:var(--ink-dim);}
+  .bin .in{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+  .bin .in span{font-size:18px;padding:5px 12px;border-radius:10px;background:#e2f7e8;border:2px solid #3bb36a;}
+  .summary{width:min(900px,100%);margin-top:16px;font-size:21px;line-height:1.6;text-align:center;background:#fff;border:3px solid var(--teal);border-radius:20px;padding:14px 18px;}
+</style>
+</head>
+<body>
+
+<!-- 타이틀 -->
+<div id="title" class="screen">
+  <p class="sub">사회 · 옛날 사람들이 교통수단을 이용했던 모습</p>
+  <h1>옛날 교통수단 여행</h1>
+  <canvas id="titleArt" width="1440" height="630"></canvas>
+  <p class="sub">말, 달구지, 가마, 뗏목, 나룻배, 돛단배를 직접 타고 움직여 봐요!</p>
+  <button class="bigbtn" id="btnStart">여행 떠나기</button>
+</div>
+
+<!-- 지도 -->
+<div id="map" class="screen hidden">
+  <h2>🗺 교통수단 여행 지도</h2>
+  <p class="hint">타 보고 싶은 교통수단을 골라요. 임무를 마치고 퀴즈를 맞히면 도장을 받아요!</p>
+  <div class="group-title">① 옛날 사람들이 이용했던 교통수단 <span>사람 · 동물 · 자연의 힘</span></div>
+  <div class="cards" id="cardsOld"></div>
+  <div class="group-title" style="margin-top:22px">② 기술의 발달에 따라 등장한 교통수단 <span>기계의 힘</span></div>
+  <div class="cards" id="cardsNew"></div>
+  <div class="maprow">
+    <button class="bigbtn" id="btnSort">✍ 오늘 배운 내용 정리하기</button>
+  </div>
+  <button class="small" id="btnReset">도장 기록 지우기</button>
+</div>
+
+<!-- 플레이 -->
+<div id="play" class="screen hidden">
+  <div class="topbar">
+    <div class="l"><button class="tbtn" id="btnQuit">🗺 지도로</button><button class="tbtn" id="btnRetry">↺ 처음부터</button></div>
+    <div class="r"><button class="tbtn" id="btnSound">🔊 소리 켬</button></div>
+  </div>
+  <div id="game">
+    <canvas id="cv"></canvas>
+    <div id="intro" class="ov"><div class="panel" id="introPanel"></div></div>
+    <div id="result" class="ov hidden"><div class="panel" id="resultPanel"></div></div>
+  </div>
+  <div id="pad"></div>
+</div>
+
+<!-- 정리 활동 -->
+<div id="sort" class="screen hidden">
+  <h2>✍ 무엇의 힘으로 움직였을까?</h2>
+  <p class="hint">교통수단 카드를 누른 다음, 알맞은 상자를 눌러 넣어 보세요.</p>
+  <div class="tray" id="tray"></div>
+  <div class="bins" id="bins"></div>
+  <div class="summary hidden" id="summary"></div>
+  <div class="maprow"><button class="bigbtn ghost" id="btnSortBack">🗺 지도로 돌아가기</button></div>
+</div>
+
+<script>
+'use strict';
+const W = 960, H = 540, TAU = Math.PI * 2;
+let T = 0;
+
+/* ---------------- 그리기 도우미 ---------------- */
+function circ(c,x,y,r,f){c.beginPath();c.arc(x,y,r,0,TAU);c.fillStyle=f;c.fill();}
+function ell(c,x,y,rx,ry,f,rot=0){c.beginPath();c.ellipse(x,y,Math.max(0.1,rx),Math.max(0.1,ry),rot,0,TAU);c.fillStyle=f;c.fill();}
+function rr(c,x,y,w,h,r,f){c.beginPath();c.roundRect(x,y,w,h,r);c.fillStyle=f;c.fill();}
+function ln(c,x1,y1,x2,y2,col,w){c.beginPath();c.moveTo(x1,y1);c.lineTo(x2,y2);c.strokeStyle=col;c.lineWidth=w;c.lineCap='round';c.stroke();}
+function hash(n){const s=Math.sin(n*127.1+311.7)*43758.5453;return s-Math.floor(s);}
+function clamp(v,a,b){return v<a?a:v>b?b:v;}
+function angDiff(a,b){let d=a-b;while(d>Math.PI)d-=TAU;while(d<-Math.PI)d+=TAU;return d;}
+function txt(c,s,x,y,size,col,align='center',stroke){
+  c.font=`${size}px Jua, "Malgun Gothic", sans-serif`;c.textAlign=align;c.textBaseline='middle';
+  if(stroke){c.lineWidth=Math.max(3,size/5);c.strokeStyle=stroke;c.lineJoin='round';c.strokeText(s,x,y);}
+  c.fillStyle=col;c.fillText(s,x,y);
+}
+function sky(c,top,bot){const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,top);g.addColorStop(1,bot);c.fillStyle=g;c.fillRect(0,0,W,H);}
+function mountains(c,o,base,col,amp,wl){
+  c.beginPath();c.moveTo(0,H);
+  for(let x=0;x<=W+20;x+=16){
+    const u=x+o;
+    const y=base-amp*(0.55+0.45*Math.sin(u/wl))*(0.65+0.35*Math.sin(u/(wl*0.37)+1.3));
+    c.lineTo(x,y);
+  }
+  c.lineTo(W,H);c.closePath();c.fillStyle=col;c.fill();
+}
+function cloud(c,x,y,s){c.save();c.globalAlpha=.9;circ(c,x,y,22*s,'#fff');circ(c,x+24*s,y-8*s,26*s,'#fff');circ(c,x+50*s,y,20*s,'#fff');ell(c,x+24*s,y+8*s,46*s,12*s,'#fff');c.restore();}
+function clouds(c,o){for(let k=0;k<5;k++){const x=((k*260-o)%(W+300)+W+300)%(W+300)-150;cloud(c,x,60+hash(k)*70,0.8+hash(k+9)*0.5);}}
+
+// 초가집 (옆모습)
+function chogajip(c,x,y,s){
+  c.save();c.translate(x,y);c.scale(s,s);
+  rr(c,-50,-50,100,50,3,'#efe3c6');
+  c.fillStyle='#8a6a43';c.fillRect(-50,-50,6,50);c.fillRect(44,-50,6,50);
+  rr(c,-12,-40,24,40,2,'#7a5532');
+  rr(c,22,-36,16,14,2,'#c9b48a');
+  c.beginPath();c.moveTo(-66,-44);c.quadraticCurveTo(-62,-102,0,-104);c.quadraticCurveTo(62,-102,66,-44);c.closePath();
+  c.fillStyle='#d6ad5f';c.fill();
+  c.strokeStyle='#b98c3e';c.lineWidth=2;
+  for(let i=-2;i<=2;i++){c.beginPath();c.moveTo(i*22,-102+Math.abs(i)*6);c.quadraticCurveTo(i*30,-70,i*28,-46);c.stroke();}
+  c.restore();
+}
+// 기와집 (옆모습)
+function giwajip(c,x,y,s,label){
+  c.save();c.translate(x,y);c.scale(s,s);
+  rr(c,-110,-40,220,40,2,'#d8cdb5');
+  c.fillStyle='#a33';c.fillRect(-100,-80,8,40);c.fillRect(92,-80,8,40);
+  rr(c,-92,-80,184,42,2,'#f3ead5');
+  rr(c,-26,-78,52,78,3,'#7b3b22');ln(c,0,-78,0,0,'#5a2a16',3);
+  c.beginPath();c.moveTo(-150,-74);c.quadraticCurveTo(-120,-86,-96,-108);c.lineTo(96,-108);c.quadraticCurveTo(120,-86,150,-74);
+  c.quadraticCurveTo(120,-80,100,-84);c.lineTo(-100,-84);c.quadraticCurveTo(-120,-80,-150,-74);c.closePath();
+  c.fillStyle='#4a4f5a';c.fill();
+  rr(c,-100,-118,200,12,6,'#363a44');
+  if(label){rr(c,-46,-104,92,26,4,'#fff6dd');txt(c,label,0,-91,18,'#6b2a14');}
+  c.restore();
+}
+// 성문
+function gate(c,x,y,label){
+  c.save();c.translate(x,y);
+  rr(c,-120,-110,240,110,4,'#a9a294');
+  c.fillStyle='#968f80';for(let r=0;r<5;r++)for(let k=0;k<6;k++)c.fillRect(-118+k*40+(r%2)*20,-108+r*22,36,2);
+  c.beginPath();c.moveTo(-34,0);c.lineTo(-34,-50);c.arc(0,-50,34,Math.PI,0);c.lineTo(34,0);c.closePath();c.fillStyle='#3a2a1e';c.fill();
+  rr(c,-100,-160,200,50,3,'#b5402e');
+  c.fillStyle='#e7d3a6';c.fillRect(-90,-150,180,8);
+  c.beginPath();c.moveTo(-150,-150);c.quadraticCurveTo(-120,-160,-100,-190);c.lineTo(100,-190);c.quadraticCurveTo(120,-160,150,-150);c.lineTo(-150,-150);c.fillStyle='#454b55';c.fill();
+  rr(c,-80,-206,160,20,8,'#454b55');
+  rr(c,-44,-140,88,26,3,'#1e2a44');txt(c,label||'한양',0,-127,18,'#f2d27a');
+  c.restore();
+}
+function tree(c,x,y,s){c.save();c.translate(x,y);c.scale(s,s);c.fillStyle='#7a5532';c.fillRect(-5,-40,10,40);circ(c,0,-58,26,'#4f9a4a');circ(c,-16,-46,18,'#5aa955');circ(c,16,-46,18,'#47904a');c.restore();}
+
+// 사람 (옆모습). y는 발끝
+function person(c,x,y,s,o={}){
+  c.save();c.translate(x,y);c.scale(s,s);
+  const st=o.step||0;
+  ln(c,-4,-30,-4+Math.sin(st)*9,-1,o.pants||'#e5dcc5',7);
+  ln(c,4,-30,4-Math.sin(st)*9,-1,o.pants||'#e5dcc5',7);
+  if(o.armsUp){ln(c,-8,-56,-6,-80,'#f2c79b',5);ln(c,8,-56,6,-80,'#f2c79b',5);}
+  else{ln(c,0,-56,-8+Math.sin(st+1)*8,-34,'#f2c79b',5);}
+  rr(c,-11,-62,22,34,7,o.cloth||'#f6f1e3');
+  c.fillStyle=o.belt||'#c9b48a';c.fillRect(-11,-42,22,3);
+  circ(c,1,-72,10,'#f2c79b');
+  circ(c,6,-73,1.5,'#3b2a1a');
+  if(o.hat==='gat'){ell(c,0,-79,20,3.5,'#1d1d1d');rr(c,-8,-94,16,15,4,'#1d1d1d');}
+  else if(o.hat==='band'){c.beginPath();c.arc(0,-74,10.5,Math.PI,0);c.fillStyle='#2a2018';c.fill();c.fillStyle='#f6f1e3';c.fillRect(-11,-79,22,4);circ(c,-2,-86,4,'#2a2018');}
+  else if(o.hat==='braid'){c.beginPath();c.arc(0,-74,10.5,Math.PI,0);c.fillStyle='#2a2018';c.fill();ln(c,-8,-72,-12,-50,'#2a2018',4);}
+  else {c.beginPath();c.arc(0,-74,10.5,Math.PI,0);c.fillStyle='#2a2018';c.fill();circ(c,0,-87,4.5,'#2a2018');}
+  c.restore();
+}
+// 머리 (위에서 본 모습)
+function headTop(c,x,y,r,hat){
+  if(hat==='gat'){circ(c,x,y,r*1.8,'rgba(20,20,20,.85)');circ(c,x,y,r*0.85,'#1d1d1d');}
+  else {circ(c,x,y,r,'#2a2018');circ(c,x,y,r*0.45,'#3b2e24');}
+}
+// 말 (옆모습, 오른쪽을 봄). y는 발끝
+function horse(c,x,y,ph,col,rider){
+  c.save();c.translate(x,y);
+  const legs=[[-28,0],[-18,Math.PI],[20,Math.PI*0.5],[30,Math.PI*1.5]];
+  for(const [lx,o] of legs){
+    const a=Math.sin(ph+o)*0.55;
+    const kx=lx+Math.sin(a)*22, ky=-48+Math.cos(a)*22;
+    const a2=a+(Math.sin(ph+o)>0?-0.6:0.2);
+    c.beginPath();c.moveTo(lx,-50);c.lineTo(kx,ky);c.lineTo(kx+Math.sin(a2)*24,ky+Math.cos(a2)*24);
+    c.strokeStyle=col;c.lineWidth=8;c.lineCap='round';c.lineJoin='round';c.stroke();
+  }
+  c.beginPath();c.moveTo(-42,-62);c.quadraticCurveTo(-66,-56,-60,-30);c.strokeStyle='#3a2414';c.lineWidth=7;c.stroke();
+  ell(c,0,-62,46,19,col);
+  c.beginPath();c.moveTo(26,-72);c.lineTo(46,-108);c.lineTo(60,-102);c.lineTo(44,-58);c.closePath();c.fillStyle=col;c.fill();
+  ell(c,62,-100,19,10,col,0.45);
+  c.beginPath();c.moveTo(48,-114);c.lineTo(52,-126);c.lineTo(56,-112);c.fillStyle=col;c.fill();
+  c.beginPath();c.moveTo(28,-74);c.lineTo(46,-110);c.lineTo(40,-112);c.lineTo(22,-76);c.fillStyle='#3a2414';c.fill();
+  circ(c,64,-104,2,'#111');
+  ln(c,70,-94,40,-80,'#5a3a1a',2);
+  if(rider){
+    rr(c,-14,-86,28,10,4,'#a33');
+    person(c,-2,-48,0.95,{hat:'gat',cloth:'#eef3f7'});
+  }
+  c.restore();
+}
+
+/* ---------------- 소리 ---------------- */
+let AC=null, soundOn=true;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){AC=null;}}if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function tone(f1,f2,dur,type='square',vol=.08,delay=0){
+  if(!soundOn)return;const a=ac();if(!a)return;
+  const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(Math.max(30,f2),t+dur);
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+0.02);
+}
+function noise(dur,vol=.1,freq=1200,delay=0){
+  if(!soundOn)return;const a=ac();if(!a)return;
+  const t=a.currentTime+delay,n=Math.floor(a.sampleRate*dur),b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+  const s=a.createBufferSource();s.buffer=b;const f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=freq;
+  const g=a.createGain();g.gain.value=vol;s.connect(f).connect(g).connect(a.destination);s.start(t);
+}
+const SFX={
+  jump(){tone(380,760,.14,'square',.06);},
+  hit(){tone(220,70,.28,'sawtooth',.08);},
+  step(){tone(200,160,.07,'triangle',.12);},
+  bad(){tone(160,110,.18,'square',.07);},
+  push(){noise(.18,.25,500);},
+  row(){noise(.22,.22,700);tone(300,250,.08,'sine',.05);},
+  shovel(){noise(.1,.3,2500);},
+  choo(){noise(.12,.25,1800);noise(.12,.25,1800,.18);},
+  whistle(){tone(880,900,.5,'sine',.07);tone(1100,1120,.5,'sine',.04);},
+  crash(){noise(.3,.3,3200);tone(900,300,.2,'triangle',.05);},
+  ok(){tone(660,660,.1,'triangle',.08);tone(880,880,.14,'triangle',.08,.1);},
+  win(){[523,659,784,1046].forEach((f,i)=>tone(f,f,.18,'triangle',.09,i*.12));},
+  moo(){tone(180,140,.5,'sawtooth',.05);},
+};
+function sfx(n){try{SFX[n]&&SFX[n]();}catch(e){}}
+
+/* ---------------- 입력 ---------------- */
+const keys={left:0,right:0,up:0,down:0,action:0};
+const pressed=new Set();
+const KEYMAP={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',Space:'action',Enter:'action'};
+function setKey(k,v){if(v&&!keys[k])pressed.add(k);keys[k]=v?1:0;}
+function tap(k){return pressed.has(k);}
+addEventListener('keydown',e=>{
+  const k=KEYMAP[e.code];if(!k||scene!=='play')return;
+  if(!document.getElementById('intro').classList.contains('hidden')||!document.getElementById('result').classList.contains('hidden'))return;
+  e.preventDefault();if(e.repeat)return;setKey(k,1);
+});
+addEventListener('keyup',e=>{const k=KEYMAP[e.code];if(k)setKey(k,0);});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=0;});
+
+/* ---------------- 공통 ---------------- */
+function addFx(s,x,y,text,col='#fff'){s.fx.push({x,y,text,col,t:0});}
+function finish(s,stars,msg){if(s.done)return;s.done=true;s.stars=stars;s.msg=msg;s.doneT=0;sfx('win');}
+function hud(c,stage,s,items,prog){
+  rr(c,12,10,300,42,21,'rgba(255,250,240,.92)');
+  txt(c,`${stage.name} · ${stage.title}`,162,32,20,'#3b2a1a');
+  let x=W-12;
+  const all=[`⏱ ${s.time.toFixed(1)}초`,...items];
+  for(let i=all.length-1;i>=0;i--){
+    c.font='19px Jua, "Malgun Gothic", sans-serif';
+    const w=c.measureText(all[i]).width+28;x-=w;
+    rr(c,x,10,w,42,21,'rgba(255,250,240,.92)');txt(c,all[i],x+w/2,32,19,'#3b2a1a');x-=8;
+  }
+  if(prog!=null){
+    rr(c,330,62,300,14,7,'rgba(0,0,0,.25)');rr(c,330,62,Math.max(14,300*clamp(prog,0,1)),14,7,'#f2b632');
+    txt(c,'🚩',640,69,18,'#fff');
+  }
+}
+function drawFx(c,s){
+  for(const f of s.fx){
+    const a=1-f.t/1.4;if(a<=0)continue;
+    c.save();c.globalAlpha=a;txt(c,f.text,f.x,f.y-f.t*40,26,f.col,'center','rgba(40,25,10,.85)');c.restore();
+  }
+}
+function keyHint(c,x,y,label,on){rr(c,x-34,y-24,68,48,12,on?'#f2b632':'rgba(255,250,240,.85)');txt(c,label,x,y+1,26,'#3b2a1a');}
+
+/* =========================================================
+   교통수단 단계
+   ========================================================= */
+const STAGES=[];
+
+/* ---------- 1. 말 ---------- */
+STAGES.push({
+  id:'horse',name:'말',title:'급한 소식을 한양까지!',power:'동물의 힘',ptype:'animal',group:'old',
+  fact:'먼 거리를 이동하거나 빨리 가야 할 때는 말을 타고 다녔어요.',
+  mission:'말을 타고 달려서 한양 성문까지 급한 소식을 전해요.<br>길에 있는 돌과 울타리를 훌쩍 뛰어넘어요!',
+  keysHelp:[['⬆ 또는 스페이스','점프'],['➡','더 빨리 달리기'],['⬅','천천히']],
+  pad:[['left','⬅ 천천히'],['up','⬆ 점프'],['right','➡ 빨리']],
+  quiz:{q:'옛날 사람들은 언제 말을 타고 다녔을까요?',c:['무거운 짐을 아주 많이 옮길 때','먼 거리를 이동하거나 빨리 가야 할 때','강을 건널 때'],a:1,ex:'말은 빨리 달릴 수 있어서 먼 길을 서둘러 갈 때 이용했어요.'},
+  init(){
+    const obs=[];let x=900;const goal=7200;
+    while(x<goal-500){obs.push({x,t:Math.random()<0.6?'rock':'fence',hit:false});x+=400+Math.random()*450;}
+    return {d:0,sp:0,y:0,vy:0,ph:0,obs,goal,stun:0,hits:0,time:0,fx:[]};
+  },
+  update(s,dt){
+    s.time+=dt;
+    let tg=keys.right?440:keys.left?190:310;
+    if(s.stun>0){s.stun-=dt;tg=110;}
+    s.sp+=(tg-s.sp)*Math.min(1,dt*2.5);
+    s.d+=s.sp*dt;s.ph+=s.sp*dt/26;
+    if((tap('up')||tap('action'))&&s.y<=0){s.vy=650;sfx('jump');}
+    s.vy-=1800*dt;s.y+=s.vy*dt;if(s.y<0){s.y=0;s.vy=0;}
+    for(const o of s.obs){
+      if(o.hit)continue;
+      const rel=o.x-s.d,h=o.t==='rock'?34:52;
+      if(rel>-50&&rel<56&&s.y<h){o.hit=true;s.hits++;s.stun=0.9;sfx('hit');addFx(s,240,300,'앗! 비틀비틀','#ffb4a8');}
+    }
+    if(s.d>=s.goal)finish(s,s.hits<=1?3:s.hits<=3?2:1,`부딪힌 횟수 ${s.hits}번 · ${s.time.toFixed(1)}초 만에 도착!`);
+  },
+  draw(c,s,preview){
+    const HX=240,G=430;
+    sky(c,'#8fd0f5','#e8f6ff');
+    circ(c,820,90,38,'#fff3b0');
+    clouds(c,s.d*0.05);
+    mountains(c,s.d*0.08,320,'#a9bfd0',100,380);
+    mountains(c,s.d*0.2,370,'#86ad84',70,250);
+    const po=s.d*0.5;
+    for(let k=Math.floor(po/300)-1;k<Math.floor(po/300)+5;k++){
+      const x=k*300-po, r=hash(k);
+      if(r<0.45)chogajip(c,x,G-10,0.75);else if(r<0.8)tree(c,x,G-8,0.9+hash(k+3)*0.4);
+    }
+    c.fillStyle='#8cc56b';c.fillRect(0,G-14,W,20);
+    c.fillStyle='#d9b77a';c.fillRect(0,G,W,H-G);
+    c.fillStyle='#c7a265';
+    for(let k=Math.floor(s.d/90);k<Math.floor(s.d/90)+13;k++){const x=k*90-s.d;c.fillRect(x+hash(k)*40,G+20+hash(k+1)*70,14,4);}
+    const gx=HX+(s.goal-s.d)+60;if(gx<W+200)gate(c,gx,G,'한양');
+    for(const o of s.obs){
+      const x=HX+(o.x-s.d);if(x<-60||x>W+60)continue;
+      if(o.t==='rock'){ell(c,x,G-14,26,18,'#8b8c8f');ell(c,x-6,G-20,12,7,'#a8a9ac');}
+      else{c.fillStyle='#8a5a32';c.fillRect(x-14,G-52,6,52);c.fillRect(x+8,G-52,6,52);c.fillRect(x-20,G-46,40,6);c.fillRect(x-20,G-26,40,6);}
+    }
+    ell(c,HX+6,G+4,50*(1-s.y/400),7,'rgba(0,0,0,.18)');
+    const ph=s.y>0?1.1:s.ph;
+    c.save();if(s.stun>0){c.translate(HX,G-s.y);c.rotate(Math.sin(T*30)*0.05);c.translate(-HX,-(G-s.y));}
+    horse(c,HX,G-s.y,ph,'#8a5530',true);
+    c.restore();
+    if(!preview){
+      hud(c,this,s,[`💥 ${s.hits}번`],s.d/s.goal);
+      const next=s.obs.find(o=>!o.hit&&o.x-s.d>0&&o.x-s.d<260);
+      if(next&&s.y<=0)keyHint(c,HX+(next.x-s.d),G-110,'⬆',Math.sin(T*12)>0);
+    }
+  }
+});
+
+/* ---------- 2. 달구지 ---------- */
+function roadX(y){return 480+150*Math.sin(y/520)+55*Math.sin(y/190+1);}
+STAGES.push({
+  id:'cart',name:'달구지',title:'무거운 짐을 장터까지!',power:'동물의 힘',ptype:'animal',group:'old',
+  fact:'소나 말이 끄는 수레(달구지)를 이용해 무거운 짐을 옮겼어요.',
+  mission:'소가 끄는 달구지에 항아리를 싣고 장터까지 가요.<br>돌과 웅덩이에 부딪히면 항아리가 깨져요. 길을 따라 조심조심!',
+  keysHelp:[['⬅ ➡','방향 바꾸기'],['⬆','조금 빨리'],['⬇','천천히']],
+  pad:[['left','⬅ 왼쪽'],['down','⬇ 천천히'],['up','⬆ 빨리'],['right','➡ 오른쪽']],
+  quiz:{q:'달구지는 어떻게 움직였을까요?',c:['소나 말이 수레를 끌어서','사람이 노를 저어서','바람이 돛을 밀어서'],a:0,ex:'달구지는 소나 말이 끌어서 무거운 짐을 옮길 수 있었어요.'},
+  init(){
+    const goal=4200,obs=[];let y=520;
+    while(y<goal-250){obs.push({y,off:(Math.random()*2-1)*70,t:Math.random()<0.5?'hole':'rock',hit:false});y+=190+Math.random()*200;}
+    return {d:0,x:roadX(30),sp:0,jars:6,obs,goal,inv:0,time:0,fx:[],steer:0,mooT:2};
+  },
+  update(s,dt){
+    s.time+=dt;
+    let tg=keys.up?165:keys.down?70:115;
+    const off=Math.abs(s.x-roadX(s.d+30))>108;
+    if(off)tg*=0.45;
+    s.sp+=(tg-s.sp)*Math.min(1,dt*2);
+    s.d+=s.sp*dt;
+    const sv=(keys.right-keys.left);
+    s.steer+=(sv-s.steer)*Math.min(1,dt*6);
+    s.x=clamp(s.x+sv*230*dt,60,W-60);
+    if(s.inv>0)s.inv-=dt;
+    for(const o of s.obs){
+      if(o.hit)continue;
+      const ox=roadX(o.y)+o.off;
+      if(Math.abs(o.y-(s.d+20))<46&&Math.abs(ox-s.x)<40&&s.inv<=0){
+        o.hit=true;s.inv=1.2;
+        if(s.jars>0){s.jars--;sfx('crash');addFx(s,s.x,330,'쨍그랑! 항아리가 깨졌어요','#ffb4a8');}
+      }
+    }
+    s.mooT-=dt;if(s.mooT<=0){s.mooT=6+Math.random()*4;sfx('moo');addFx(s,s.x,250,'음메~','#fff');}
+    if(s.d>=s.goal)finish(s,s.jars>=5?3:s.jars>=3?2:1,s.jars>0?`항아리 ${s.jars}개를 깨뜨리지 않고 장터까지 옮겼어요! (${s.time.toFixed(1)}초)`:`장터에 도착했어요! 다음엔 항아리를 지켜 봐요 (${s.time.toFixed(1)}초)`);
+  },
+  draw(c,s,preview){
+    const CY=420;
+    const sy=wy=>CY-(wy-s.d);
+    c.fillStyle='#8cc56b';c.fillRect(0,0,W,H);
+    // 풀 무늬
+    for(let k=Math.floor((s.d-200)/50);k<Math.floor((s.d+560)/50);k++){
+      const y=sy(k*50);for(let j=0;j<3;j++){const x=hash(k*3+j)*W;if(Math.abs(x-roadX(k*50))<140)continue;
+        if(hash(k*7+j)<0.2){circ(c,x,y,4,'#f7d24a');circ(c,x,y,1.5,'#e07b2a');}else{ln(c,x,y,x-4,y-8,'#6aa851',2);ln(c,x,y,x+4,y-8,'#6aa851',2);}}
+      if(hash(k+77)<0.12){const tx=roadX(k*50)+(hash(k+5)<0.5?-1:1)*(200+hash(k+8)*150);circ(c,tx,y,24,'#4f9a4a');circ(c,tx-4,y-4,14,'#5fae58');}
+    }
+    // 길
+    c.beginPath();
+    for(let y=-20;y<=H+20;y+=10)c.lineTo(roadX(s.d+CY-y)-110,y);
+    for(let y=H+20;y>=-20;y-=10)c.lineTo(roadX(s.d+CY-y)+110,y);
+    c.closePath();c.fillStyle='#d4b07a';c.fill();
+    for(const dx of [-40,40]){c.beginPath();for(let y=-20;y<=H+20;y+=10)c.lineTo(roadX(s.d+CY-y)+dx,y);c.strokeStyle='#bf9a62';c.lineWidth=6;c.stroke();}
+    // 장터
+    const gy=sy(s.goal+60);
+    if(gy>-120){
+      const gxc=roadX(s.goal+60);
+      for(const k of [-1,1]){for(let i=0;i<2;i++){const x=gxc+k*(170+i*120);rr(c,x-50,gy-30,100,60,6,i?'#c94a3a':'#2f7dbf');rr(c,x-44,gy-24,88,48,4,'#f5e6c4');circ(c,x-18,gy,9,'#e07b2a');circ(c,x+12,gy,9,'#6aa851');}}
+      rr(c,gxc-120,gy-70,240,40,8,'#7a3b22');txt(c,'🏮 장터 🏮',gxc,gy-50,24,'#fff1c8');
+    }
+    for(const o of s.obs){
+      const y=sy(o.y);if(y<-40||y>H+40)continue;const x=roadX(o.y)+o.off;
+      if(o.t==='hole'){ell(c,x,y,30,18,'#7a5a3a');ell(c,x,y+2,22,12,'#6b8fa8');}
+      else{ell(c,x,y,24,19,'#8b8c8f');ell(c,x-6,y-5,10,7,'#a8a9ac');}
+    }
+    // 소 + 달구지 (위에서 본 모습)
+    c.save();c.translate(s.x,CY);c.rotate(s.steer*0.18);
+    if(s.inv>0&&Math.floor(T*12)%2===0)c.globalAlpha=0.5;
+    const bob=Math.sin(s.d/12)*2;
+    // 끌채
+    ln(c,-20,-20,-14,-80,'#7a5532',5);ln(c,20,-20,14,-80,'#7a5532',5);
+    // 소
+    c.save();c.translate(0,-100+bob);
+    for(const [lx,ly,o] of [[-14,-18,0],[14,-18,Math.PI],[-14,18,Math.PI],[14,18,0]])ell(c,lx,ly+Math.sin(s.d/12+o)*4,5,7,'#6b4524');
+    ell(c,0,0,20,34,'#9a6435');ell(c,6,6,9,12,'#f3e9da');
+    circ(c,0,-36,13,'#9a6435');
+    ln(c,-10,-42,-20,-50,'#f3e9da',4);ln(c,10,-42,20,-50,'#f3e9da',4);
+    ell(c,-14,-36,6,3,'#7d4f28');ell(c,14,-36,6,3,'#7d4f28');
+    ell(c,0,-46,7,5,'#e7b39a');
+    c.restore();
+    // 수레
+    rr(c,-48,-26,14,52,4,'#4a3220');rr(c,34,-26,14,52,4,'#4a3220');
+    rr(c,-36,-36,72,80,6,'#a9743f');
+    c.strokeStyle='#8a5a32';c.lineWidth=2;for(let i=1;i<4;i++){c.beginPath();c.moveTo(-36,-36+i*20);c.lineTo(36,-36+i*20);c.stroke();}
+    for(let i=0;i<6;i++){const jx=-18+(i%2)*36,jy=-20+Math.floor(i/2)*26;
+      if(i<s.jars){circ(c,jx,jy,12,'#6b3d22');circ(c,jx,jy,7,'#3a2012');ell(c,jx-4,jy-4,3,2,'rgba(255,255,255,.4)');}
+      else{circ(c,jx,jy,10,'rgba(0,0,0,.12)');}}
+    // 농부
+    c.restore();
+    headTop(c,s.x+62,CY-30+Math.sin(s.d/10)*2,9,'gat');
+    if(!preview)hud(c,this,s,[`🏺 항아리 ${s.jars}개`],s.d/s.goal);
+  }
+});
+
+/* ---------- 3. 가마 ---------- */
+const STEP=34;
+STAGES.push({
+  id:'gama',name:'가마',title:'손님을 편안하게 모셔라!',power:'사람의 힘',ptype:'human',group:'old',
+  fact:'가마에 사람을 태우고, 가마꾼들이 가마를 들어서 옮겼어요.',
+  mission:'가마꾼이 되어 손님을 기와집까지 모셔요.<br>⬅ ➡ 를 <b>번갈아</b> 눌러 한 걸음씩! 돌부리가 나오면 ⬆ 로 조심조심 넘어가요.',
+  keysHelp:[['⬅ ➡ 번갈아','한 걸음씩 걷기'],['⬆','돌부리 조심']],
+  pad:[['left','⬅ 왼발'],['up','⬆ 조심!'],['right','➡ 오른발']],
+  quiz:{q:'가마는 어떻게 사람을 옮겼을까요?',c:['말이 가마를 끌어서','가마꾼이 가마를 들어서','물 위에 띄워서'],a:1,ex:'가마는 가마꾼들이 직접 들고 걸어서 옮기는, 사람의 힘을 이용한 교통수단이에요.'},
+  init(){
+    const stones=[];for(let i=7;i<46;i+=4+Math.floor(Math.random()*4))stones.push({step:i,done:false});
+    return {steps:0,goal:50,pos:0,tpos:0,tilt:0,last:'',lastT:-1,wob:0,freeze:0,stones,lift:0,time:0,fx:[],shout:0};
+  },
+  update(s,dt){
+    s.time+=dt;
+    s.pos+=(s.tpos-s.pos)*Math.min(1,dt*9);
+    s.tilt-=s.tilt*Math.min(1,dt*0.9);
+    if(s.lift>0)s.lift-=dt;if(s.shout>0)s.shout-=dt;
+    if(s.freeze>0){s.freeze-=dt;return;}
+    if(tap('up')||tap('action')){s.lift=1.0;addFx(s,600,330,'조심조심','#fff');}
+    let k=tap('left')?'left':tap('right')?'right':'';
+    if(k){
+      if(k===s.last){s.tilt+=k==='left'?-0.45:0.45;sfx('bad');addFx(s,490,215,'발을 번갈아!','#ffd27a');}
+      else{
+        if(s.time-s.lastT<0.14){s.tilt+=(Math.random()<0.5?-1:1)*0.3;addFx(s,490,215,'너무 빨라요!','#ffd27a');}
+        s.steps++;s.tpos+=STEP;s.tilt*=0.6;sfx('step');
+        for(const st of s.stones){if(!st.done&&st.step===s.steps){st.done=true;
+          if(s.lift>0){addFx(s,600,300,'사뿐!','#b8f5c6');sfx('ok');}else{s.tilt=1;}}}
+      }
+      s.last=k;s.lastT=s.time;
+    }
+    if(Math.abs(s.tilt)>=1){s.wob++;s.freeze=0.9;s.shout=1.4;s.tilt=0;sfx('hit');addFx(s,490,200,'아이고, 손님이 놀랐어요!','#ffb4a8');}
+    if(s.steps>=s.goal)finish(s,s.wob===0?3:s.wob<=2?2:1,`손님이 놀란 횟수 ${s.wob}번 · ${s.time.toFixed(1)}초`);
+  },
+  draw(c,s,preview){
+    const G=440,FX=600,BX=380;
+    sky(c,'#a8dcf5','#f2f9ff');clouds(c,s.pos*0.05);
+    mountains(c,s.pos*0.1,330,'#a9bfd0',90,330);
+    mountains(c,s.pos*0.25,380,'#8fb58b',60,230);
+    const po=s.pos*0.6;
+    for(let k=Math.floor(po/260)-1;k<Math.floor(po/260)+5;k++){const x=k*260-po,r=hash(k+40);if(r<0.4)chogajip(c,x,G-12,0.7);else if(r<0.75)tree(c,x,G-10,1);}
+    c.fillStyle='#8cc56b';c.fillRect(0,G-16,W,20);c.fillStyle='#dcc08c';c.fillRect(0,G,W,H-G);
+    const goalX=FX+(s.goal*STEP-s.pos)+140;if(goalX<W+250)giwajip(c,goalX,G,0.95,'도착');
+    for(const st of s.stones){
+      const x=FX+(st.step*STEP-s.pos);if(x<-30||x>W+30)continue;
+      ell(c,x,G+4,18,10,st.done?'#a8a9ac':'#7f8084');ell(c,x-4,G,8,4,'#b9babd');
+      const near=st.step-s.steps;
+      if(!st.done&&near>=1&&near<=2&&!preview)keyHint(c,x,G-200,'⬆',Math.sin(T*12)>0);
+    }
+    const ph=s.pos/STEP*Math.PI;
+    const tilt=s.tilt*0.32+(s.freeze>0?Math.sin(T*28)*0.12:0);
+    person(c,BX,G,1.15,{step:ph,hat:'band',cloth:'#ede4cc',armsUp:true});
+    person(c,FX,G,1.15,{step:ph+Math.PI,hat:'band',cloth:'#ede4cc',armsUp:true});
+    c.save();c.translate((BX+FX)/2,G-96);c.rotate(tilt);
+    ln(c,-150,0,150,0,'#6b4524',7);
+    rr(c,-56,-104,112,96,6,'#7b3b22');
+    rr(c,-48,-96,96,80,4,'#a64d2c');
+    rr(c,-26,-84,52,46,4,'#f3e3c0');
+    c.strokeStyle='#7b3b22';c.lineWidth=2;for(let i=1;i<3;i++){c.beginPath();c.moveTo(-26+i*17,-84);c.lineTo(-26+i*17,-38);c.stroke();}
+    circ(c,0,-58,11,'#f2c79b');circ(c,-4,-60,1.5,'#222');circ(c,4,-60,1.5,'#222');
+    if(s.shout>0){ell(c,0,-52,4,4,'#a33');}else{ln(c,-3,-52,3,-52,'#a33',2);}
+    c.beginPath();c.moveTo(-70,-100);c.quadraticCurveTo(0,-140,70,-100);c.closePath();c.fillStyle='#3d2a1e';c.fill();
+    circ(c,0,-126,6,'#f2b632');
+    c.restore();
+    if(s.shout>0){rr(c,520,90,150,46,14,'#fff');txt(c,'아이고!',595,113,24,'#c0392b');}
+    if(!preview){
+      hud(c,this,s,[`😱 놀람 ${s.wob}번`],s.steps/s.goal);
+      const need=s.last==='left'?'right':'left';
+      keyHint(c,W/2-40,500,'⬅',need==='left');keyHint(c,W/2+40,500,'➡',need==='right');
+      rr(c,W/2-90,96,180,14,7,'rgba(0,0,0,.2)');
+      const tw=s.tilt*90;rr(c,W/2+Math.min(0,tw),96,Math.abs(tw),14,7,Math.abs(s.tilt)>0.6?'#e05a3a':'#f2b632');
+      txt(c,'기울기',W/2,124,16,'#3b2a1a');
+    }
+  }
+});
+
+/* ---------- 강 장면 (뗏목·나룻배 공통) ---------- */
+function flowAt(y){const f=1-Math.pow((y-295)/185,2);return 18+80*Math.max(0,f);}
+function riverScene(c,flowMul,seed){
+  c.fillStyle='#8cc56b';c.fillRect(0,0,W,H);
+  const g=c.createLinearGradient(0,108,0,482);g.addColorStop(0,'#6cc0e0');g.addColorStop(.5,'#3a8cc4');g.addColorStop(1,'#6cc0e0');
+  c.beginPath();c.moveTo(0,110);for(let x=0;x<=W;x+=20)c.lineTo(x,108+Math.sin(x/60+seed)*5);
+  c.lineTo(W,482);for(let x=W;x>=0;x-=20)c.lineTo(x,484+Math.sin(x/70+seed)*5);c.closePath();
+  c.fillStyle='#ead39c';c.fill();
+  c.beginPath();c.moveTo(0,118);for(let x=0;x<=W;x+=20)c.lineTo(x,120+Math.sin(x/60+seed)*5);
+  c.lineTo(W,472);for(let x=W;x>=0;x-=20)c.lineTo(x,472+Math.sin(x/70+seed)*5);c.closePath();
+  c.fillStyle=g;c.fill();
+  c.strokeStyle='rgba(255,255,255,.4)';c.lineWidth=2;c.lineCap='round';
+  for(let i=0;i<30;i++){
+    const y=132+(i*47.3)%330,sp=flowAt(y)*flowMul,len=14+sp*0.35;
+    for(const off of [0,0.5]){const x=((hash(i+seed)+off)*(W+120)+T*sp)%(W+120)-60;c.beginPath();c.moveTo(x,y);c.lineTo(x+len,y);c.stroke();}
+  }
+  for(let k=0;k<12;k++){
+    tree(c,40+k*85+hash(k+seed)*30,70+hash(k*3)*20,0.7);
+    if(hash(k+seed*2)<0.5){c.save();c.translate(30+k*80+hash(k*5)*40,520);for(let j=0;j<4;j++)ln(c,j*5,0,j*5-4,-22,'#5a9a44',2);c.restore();}
+  }
+}
+
+/* ---------- 4. 뗏목 ---------- */
+STAGES.push({
+  id:'raft',name:'뗏목',title:'긴 막대기로 밀어 강 건너기',power:'사람의 힘',ptype:'human',group:'old',
+  fact:'통나무 여러 개를 이어 붙인 뗏목을 타고, 사람이 긴 막대기로 밀어서 강을 건너거나 물건을 옮겼어요.',
+  mission:'방향키를 <b>톡톡</b> 눌러 막대기로 뗏목을 밀어요.<br>강물이 오른쪽으로 흘러가요! 물살을 생각하며 건너편 나루터(🚩)에 닿아요.',
+  keysHelp:[['⬆ ⬇ ⬅ ➡ 톡톡','그쪽으로 막대기 밀기'],['꾹 누르기','소용없어요!']],
+  pad:[['left','⬅'],['up','⬆'],['down','⬇'],['right','➡']],
+  quiz:{q:'뗏목은 어떻게 만들었을까요?',c:['쇠를 녹여서 만들었다','통나무 여러 개를 이어 붙여 만들었다','돌을 쌓아서 만들었다'],a:1,ex:'뗏목은 자연에서 쉽게 얻을 수 있는 통나무를 이어 붙여 만들었어요.'},
+  init(){
+    return {x:600,y:458,vx:0,vy:0,pole:0,pdx:0,pdy:-1,dockX:290,resets:0,time:0,fx:[],
+      rocks:[{x:430,y:300,r:24},{x:560,y:220,r:20},{x:180,y:250,r:18},{x:720,y:330,r:22},{x:330,y:390,r:18}]};
+  },
+  update(s,dt){
+    s.time+=dt;
+    const imp=78;let p=null;
+    if(tap('left'))p=[-1,0];else if(tap('right'))p=[1,0];else if(tap('up')||tap('action'))p=[0,-1];else if(tap('down'))p=[0,1];
+    if(p){s.vx+=p[0]*imp;s.vy+=p[1]*imp;s.pole=0.35;s.pdx=p[0];s.pdy=p[1];sfx('push');}
+    if(s.pole>0)s.pole-=dt;
+    const dmp=Math.exp(-1.3*dt);s.vx*=dmp;s.vy*=dmp;
+    s.x+=(s.vx+flowAt(s.y)*0.9)*dt;s.y+=s.vy*dt;
+    if(s.y>460){s.y=460;s.vy=Math.min(0,s.vy);}
+    if(s.y<140){
+      if(Math.abs(s.x-s.dockX)<75){s.y=140;finish(s,s.resets===0&&s.time<30?3:s.time<55?2:1,`떠내려간 횟수 ${s.resets}번 · ${s.time.toFixed(1)}초 만에 건넜어요!`);}
+      else{s.y=140;s.vy=Math.max(0,s.vy);if(!s.bankMsg||s.time-s.bankMsg>1.5){s.bankMsg=s.time;addFx(s,s.x,190,'여기는 나루터가 아니에요','#ffd27a');}}
+    }
+    if(s.x<50){s.x=50;s.vx=Math.max(0,s.vx);}
+    if(s.x>W-30){s.resets++;s.x=600;s.y=458;s.vx=s.vy=0;sfx('hit');addFx(s,600,380,'물살에 떠내려갔어요! 다시 출발','#ffb4a8');}
+    for(const r of s.rocks){
+      const dx=s.x-r.x,dy=s.y-r.y,d=Math.hypot(dx,dy),m=r.r+34;
+      if(d<m&&d>0){const nx=dx/d,ny=dy/d;s.x=r.x+nx*m;s.y=r.y+ny*m;const vn=s.vx*nx+s.vy*ny;if(vn<0){s.vx-=1.6*vn*nx;s.vy-=1.6*vn*ny;}}
+    }
+  },
+  draw(c,s,preview){
+    riverScene(c,0.9,1);
+    // 출발 나루
+    rr(c,560,474,80,40,4,'#9a6a3a');txt(c,'출발',600,500,18,'#fff');
+    // 도착 나루터
+    c.fillStyle='#9a6a3a';c.fillRect(s.dockX-60,84,120,46);
+    c.strokeStyle='#6b4524';c.lineWidth=2;for(let i=1;i<6;i++){c.beginPath();c.moveTo(s.dockX-60+i*20,84);c.lineTo(s.dockX-60+i*20,130);c.stroke();}
+    ln(c,s.dockX+50,90,s.dockX+50,40,'#5a3a1a',4);
+    c.beginPath();c.moveTo(s.dockX+50,40);c.lineTo(s.dockX+50+34+Math.sin(T*6)*4,50);c.lineTo(s.dockX+50,60);c.fillStyle='#d9452b';c.fill();
+    if(!preview){c.save();c.globalAlpha=0.35+0.25*Math.sin(T*5);rr(c,s.dockX-75,118,150,40,10,'#fff');c.restore();}
+    headTop(c,s.dockX-30,100,8,'gat');headTop(c,s.dockX+5,104,8);
+    for(const r of s.rocks){ell(c,r.x,r.y,r.r+6,r.r,'rgba(255,255,255,.35)');ell(c,r.x,r.y,r.r,r.r*0.8,'#7f8084');ell(c,r.x-5,r.y-5,r.r*0.4,r.r*0.3,'#a8a9ac');}
+    // 뗏목
+    c.save();c.translate(s.x,s.y);
+    ell(c,0,4,52,36,'rgba(0,0,0,.15)');
+    for(let i=0;i<6;i++){const y=-30+i*11;rr(c,-46,y,92,11,5,i%2?'#9a6435':'#a8703f');circ(c,-44,y+5.5,4.5,'#d8b484');circ(c,44,y+5.5,4.5,'#d8b484');}
+    ln(c,-24,-32,-24,34,'#5a3a1a',3);ln(c,24,-32,24,34,'#5a3a1a',3);
+    circ(c,-28,-12,9,'#e3d2a6');circ(c,-30,8,9,'#d9c493');circ(c,28,10,9,'#e3d2a6');
+    // 사공과 막대기
+    const pl=s.pole>0?40+(0.35-s.pole)*60:30;
+    ln(c,4,0,4-s.pdx*pl*1.6,-s.pdy*pl*1.6,'#6b4524',5);
+    headTop(c,4,0,9,'band');
+    c.restore();
+    if(!preview){
+      hud(c,this,s,[`🌊 떠내려감 ${s.resets}번`]);
+      c.save();c.globalAlpha=.8;txt(c,'물이 흐르는 방향 ➡➡➡',W-160,300,20,'#fff','center','rgba(20,60,100,.6)');c.restore();
+    }
+  }
+});
+
+/* ---------- 5. 나룻배 ---------- */
+STAGES.push({
+  id:'ferry',name:'나룻배',title:'사공이 되어 손님 건네주기',power:'사람의 힘',ptype:'human',group:'old',
+  fact:'사람과 짐을 싣고, 사람이 노를 저어서 강의 양쪽을 오갔어요.',
+  mission:'나룻배 사공이 되어 손님들을 강 건너편으로 건네줘요.<br>노를 <b>톡톡</b> 저어 나루터(🚩)에 닿으면 손님이 내리고 새 손님이 타요. 모두 3번 건너요!',
+  keysHelp:[['⬆ 또는 스페이스','양쪽 노 저어 앞으로'],['⬅','왼쪽으로 돌기'],['➡','오른쪽으로 돌기']],
+  pad:[['left','⬅ 왼쪽으로'],['up','⬆ 노 젓기'],['right','➡ 오른쪽으로']],
+  quiz:{q:'나룻배는 주로 무엇으로 움직였을까요?',c:['사람이 노를 저어서','석유의 힘으로','수증기의 힘으로'],a:0,ex:'나룻배는 사공이 노를 저어 움직이는, 사람의 힘을 이용한 교통수단이에요.'},
+  init(){
+    return {x:280,y:440,ang:-Math.PI/2,v:0,av:0,trip:0,target:1,wait:0,time:0,fx:[],oar:0,
+      docks:[{x:280,y:470},{x:680,y:132}],pass:[1,1,1,1]};
+  },
+  update(s,dt){
+    s.time+=dt;
+    if(s.oar>0)s.oar-=dt*2.2;
+    if(s.wait>0){
+      s.wait-=dt;const d=s.docks[s.target===1?0:1];
+      if(s.wait<=0){s.ang=s.target===1?-Math.PI/2:Math.PI/2;}
+      return;
+    }
+    if(tap('up')||tap('action')){s.v+=62;s.oar=1;sfx('row');}
+    if(tap('left')){s.v+=22;s.av-=1.3;s.oar=1;sfx('row');}
+    if(tap('right')){s.v+=22;s.av+=1.3;s.oar=1;sfx('row');}
+    s.v=Math.min(s.v,210);
+    s.ang+=s.av*dt;s.av*=Math.exp(-3*dt);s.v*=Math.exp(-0.9*dt);
+    s.x+=Math.cos(s.ang)*s.v*dt+flowAt(s.y)*0.35*dt;
+    s.y+=Math.sin(s.ang)*s.v*dt;
+    s.y=clamp(s.y,148,456);s.x=clamp(s.x,50,W-50);
+    const d=s.docks[s.target];
+    if(Math.hypot(s.x-d.x,s.y-d.y)<82){
+      s.trip++;s.v=0;s.av=0;sfx('ok');
+      s.x=d.x;s.y=s.target===1?150:452;
+      if(s.trip>=3){finish(s,s.time<45?3:s.time<75?2:1,`손님들을 3번 무사히 건네주었어요! (${s.time.toFixed(1)}초)`);return;}
+      addFx(s,d.x,s.target===1?200:400,'손님 도착! 새 손님이 타요','#b8f5c6');
+      s.target=1-s.target;s.wait=1.3;
+    }
+  },
+  draw(c,s,preview){
+    riverScene(c,0.35,4);
+    s.docks.forEach((d,i)=>{
+      const top=i===1;const y0=top?82:468;
+      c.fillStyle='#9a6a3a';c.fillRect(d.x-34,y0,68,48);
+      c.strokeStyle='#6b4524';c.lineWidth=2;for(let k=1;k<4;k++){c.beginPath();c.moveTo(d.x-34,y0+k*12);c.lineTo(d.x+34,y0+k*12);c.stroke();}
+      const isT=i===s.target&&!s.done;
+      if(isT&&!preview){c.save();c.globalAlpha=0.35+0.25*Math.sin(T*5);circ(c,d.x,top?132:468,48,'#fff');c.restore();
+        ln(c,d.x+46,top?100:500,d.x+46,top?56:456,'#5a3a1a',4);
+        c.beginPath();const fy=top?56:456;c.moveTo(d.x+46,fy);c.lineTo(d.x+80+Math.sin(T*6)*4,fy+10);c.lineTo(d.x+46,fy+20);c.fillStyle='#d9452b';c.fill();}
+      // 기다리는 손님 (다음 출발지)
+      const waitingHere=(s.wait>0? i===s.target : i===s.target? false : false);
+      if(i===(1-s.target)||waitingHere){}
+      for(let k=0;k<3;k++){const hx=d.x-60-k*20,hy=top?60+k*6:500-k*6;if((i===1&&s.trip%2===1)||(i===0&&s.trip%2===0&&s.trip>0))headTop(c,hx,hy,8,k===0?'gat':null);}
+    });
+    // 배
+    c.save();c.translate(s.x,s.y);c.rotate(s.ang);
+    ell(c,2,6,60,24,'rgba(0,0,0,.15)');
+    c.beginPath();c.moveTo(62,0);c.quadraticCurveTo(30,-26,-50,-20);c.lineTo(-58,0);c.lineTo(-50,20);c.quadraticCurveTo(30,26,62,0);c.closePath();
+    c.fillStyle='#8a5a32';c.fill();
+    c.beginPath();c.moveTo(52,0);c.quadraticCurveTo(26,-19,-44,-14);c.lineTo(-50,0);c.lineTo(-44,14);c.quadraticCurveTo(26,19,52,0);c.closePath();
+    c.fillStyle='#b98250';c.fill();
+    ln(c,10,-17,10,17,'#7a4f2a',3);ln(c,-20,-15,-20,15,'#7a4f2a',3);
+    if(s.wait<=0)for(let k=0;k<4;k++)headTop(c,-6+(k%2)*28-14,(k<2?-7:7),7,k===0?'gat':null);
+    const oa=Math.sin((1-Math.max(0,s.oar))*Math.PI)*0.7;
+    ln(c,-30,-12,-48-Math.cos(oa)*6,-44-Math.sin(oa)*10,'#6b4524',4);
+    ln(c,-30,12,-48-Math.cos(oa)*6,44+Math.sin(oa)*10,'#6b4524',4);
+    headTop(c,-38,0,9,'band');
+    c.restore();
+    if(!preview)hud(c,this,s,[`⛴ 건넌 횟수 ${s.trip} / 3`],s.trip/3);
+  }
+});
+
+/* ---------- 6. 돛단배 ---------- */
+STAGES.push({
+  id:'sail',name:'돛단배',title:'바람을 타고 섬마을로!',power:'자연(바람)의 힘',ptype:'nature',group:'old',
+  fact:'배에 바람의 힘을 이용하는 돛을 달아서 강이나 바다를 건넜어요.',
+  mission:'돛단배를 타고 섬 3곳(①→②→③)에 차례로 물건을 전해요.<br><b>바람이 부는 쪽으로 뱃머리를 돌리면</b> 돛에 바람을 가득 받아 빨라져요! 바람은 가끔 바뀌어요.',
+  keysHelp:[['⬅','왼쪽으로 돌기'],['➡','오른쪽으로 돌기'],['💨 바람 화살표','잘 보기!']],
+  pad:[['left','⬅ 왼쪽으로'],['right','➡ 오른쪽으로']],
+  quiz:{q:'돛단배의 돛은 무엇의 힘을 이용했을까요?',c:['바람의 힘','소의 힘','전기의 힘'],a:0,ex:'돛단배는 돛으로 바람의 힘을 받아 움직였어요. 자연의 힘을 이용한 거예요.'},
+  init(){
+    return {x:110,y:450,ang:-0.6,sp:0,wind:-0.4,windT:-0.4,wt:7,next:0,time:0,fx:[],
+      isl:[{x:790,y:175,r:56},{x:830,y:430,r:52},{x:230,y:185,r:50}],
+      rocks:[{x:480,y:270,r:26},{x:600,y:150,r:20},{x:420,y:440,r:20},{x:650,y:370,r:18}]};
+  },
+  update(s,dt){
+    s.time+=dt;
+    s.wt-=dt;
+    if(s.wt<=0){
+      s.wt=8;const t=s.isl[Math.min(s.next,2)];
+      const toward=Math.atan2(t.y-s.y,t.x-s.x);s.windT=toward+(Math.random()*2-1)*2.1;
+      addFx(s,W/2,150,'바람의 방향이 바뀌었어요!','#fff');
+    }
+    s.wind+=clamp(angDiff(s.windT,s.wind),-0.7*dt,0.7*dt);
+    s.ang+=(keys.right-keys.left)*2.2*dt;
+    const eff=0.5+0.5*Math.cos(angDiff(s.ang,s.wind));
+    s.eff=eff;
+    const tg=28+135*Math.pow(eff,1.5);
+    s.sp+=(tg-s.sp)*Math.min(1,dt*1.4);
+    s.x+=Math.cos(s.ang)*s.sp*dt+Math.cos(s.wind)*10*dt;
+    s.y+=Math.sin(s.ang)*s.sp*dt+Math.sin(s.wind)*10*dt;
+    s.x=clamp(s.x,24,W-24);s.y=clamp(s.y,90,H-24);
+    s.isl.forEach((is,i)=>{
+      const dx=s.x-is.x,dy=s.y-is.y,d=Math.hypot(dx,dy);
+      if(i===s.next&&d<is.r+30){s.next++;sfx('ok');addFx(s,is.x,is.y-is.r-10,'물건 배달 완료!','#b8f5c6');
+        if(s.next>=3)finish(s,s.time<40?3:s.time<70?2:1,`바람을 타고 섬 3곳을 ${s.time.toFixed(1)}초 만에 돌았어요!`);}
+      else if(d<is.r+22&&d>0){s.x=is.x+dx/d*(is.r+22);s.y=is.y+dy/d*(is.r+22);s.sp*=0.6;}
+    });
+    for(const r of s.rocks){const dx=s.x-r.x,dy=s.y-r.y,d=Math.hypot(dx,dy);if(d<r.r+22&&d>0){s.x=r.x+dx/d*(r.r+22);s.y=r.y+dy/d*(r.r+22);s.sp*=0.4;if(!s.rockT||s.time-s.rockT>1){s.rockT=s.time;sfx('hit');addFx(s,s.x,s.y-30,'쿵! 바위 조심','#ffb4a8');}}}
+  },
+  draw(c,s,preview){
+    const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#3d9fd1');g.addColorStop(1,'#2a78b3');c.fillStyle=g;c.fillRect(0,0,W,H);
+    // 바람 줄무늬
+    const wx=Math.cos(s.wind),wy=Math.sin(s.wind);
+    c.strokeStyle='rgba(255,255,255,.28)';c.lineWidth=2;c.lineCap='round';
+    for(let i=0;i<34;i++){
+      const bx=hash(i)*W,by=hash(i+50)*H,tt=(T*0.5+hash(i+9))%1;
+      const x=((bx+wx*tt*260)%W+W)%W,y=((by+wy*tt*260)%H+H)%H;
+      c.globalAlpha=Math.sin(tt*Math.PI);c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+wx*14-wy*4,y+wy*14+wx*4,x+wx*30,y+wy*30);c.stroke();
+    }
+    c.globalAlpha=1;
+    for(const r of s.rocks){circ(c,r.x,r.y,r.r+6,'rgba(255,255,255,.3)');ell(c,r.x,r.y,r.r,r.r*0.85,'#6f7074');ell(c,r.x-5,r.y-5,r.r*0.4,r.r*0.3,'#999a9e');}
+    s.isl.forEach((is,i)=>{
+      if(i===s.next&&!preview){c.save();c.globalAlpha=0.3+0.25*Math.sin(T*5);circ(c,is.x,is.y,is.r+30,'#fff');c.restore();}
+      circ(c,is.x,is.y,is.r+12,'#7fc7e3');circ(c,is.x,is.y,is.r,'#ecd49a');circ(c,is.x,is.y,is.r-14,'#6fb05a');
+      circ(c,is.x-12,is.y-10,12,'#4f9a4a');circ(c,is.x+14,is.y+8,10,'#4f9a4a');
+      rr(c,is.x-8,is.y+2,18,14,2,'#d6ad5f');
+      const done=i<s.next;
+      rr(c,is.x-18,is.y-is.r-30,36,30,8,done?'#3bb36a':'#d9452b');txt(c,done?'✓':['①','②','③'][i],is.x,is.y-is.r-15,22,'#fff');
+    });
+    // 배 (위에서)
+    c.save();c.translate(s.x,s.y);
+    c.save();c.rotate(s.ang);
+    ell(c,0,5,40,16,'rgba(0,0,0,.18)');
+    c.beginPath();c.moveTo(42,0);c.quadraticCurveTo(14,-18,-34,-14);c.lineTo(-38,0);c.lineTo(-34,14);c.quadraticCurveTo(14,18,42,0);c.closePath();c.fillStyle='#8a5a32';c.fill();
+    c.beginPath();c.moveTo(34,0);c.quadraticCurveTo(12,-12,-28,-9);c.lineTo(-30,0);c.lineTo(-28,9);c.quadraticCurveTo(12,12,34,0);c.closePath();c.fillStyle='#b98250';c.fill();
+    headTop(c,-22,0,7,'band');
+    c.restore();
+    // 돛: 바람을 받아 부풂
+    const eff=s.eff==null?0.6:s.eff;
+    const sa=s.ang+Math.PI/2;const sx=Math.cos(sa),sy=Math.sin(sa);
+    const bulge=6+22*eff;
+    c.beginPath();c.moveTo(sx*30,sy*30);c.quadraticCurveTo(wx*bulge*2,wy*bulge*2,-sx*30,-sy*30);c.quadraticCurveTo(wx*bulge*0.6,wy*bulge*0.6,sx*30,sy*30);
+    c.fillStyle='#f3ead5';c.fill();c.strokeStyle='#8a7a5a';c.lineWidth=2;c.stroke();
+    circ(c,0,0,4,'#5a3a1a');
+    c.restore();
+    if(!preview){
+      hud(c,this,s,[`🏝 ${s.next} / 3`],s.next/3);
+      // 바람 나침반
+      const cx=W-70,cy=H-70;
+      circ(c,cx,cy,52,'rgba(255,250,240,.92)');txt(c,'바람',cx,cy-36,16,'#3b2a1a');
+      c.save();c.translate(cx,cy+6);c.rotate(s.wind);
+      ln(c,-28,0,22,0,'#2a78b3',8);c.beginPath();c.moveTo(34,0);c.lineTo(16,-13);c.lineTo(16,13);c.fillStyle='#2a78b3';c.fill();
+      c.restore();
+      const pct=Math.round(eff*100);
+      rr(c,16,H-56,240,40,20,'rgba(255,250,240,.92)');
+      rr(c,92,H-44,150,16,8,'#d8ccb4');rr(c,92,H-44,Math.max(16,150*eff),16,8,eff>0.7?'#3bb36a':eff>0.4?'#f2b632':'#e05a3a');
+      txt(c,'돛 바람',52,H-36,17,'#3b2a1a');
+    }
+  }
+});
+
+/* ---------- 7. 증기 기차 ---------- */
+STAGES.push({
+  id:'train',name:'증기 기차',title:'석탄을 넣어 칙칙폭폭!',power:'기계(수증기)의 힘',ptype:'machine',group:'new',
+  fact:'과학 기술이 발달하면서, 물을 끓일 때 생기는 수증기의 힘으로 움직이는 기차와 배가 만들어졌어요.',
+  mission:'기관사가 되어 석탄을 넣고(🔥) 증기 압력을 <b>초록색</b>에 맞춰요. 너무 많이 넣으면 넘쳐요!<br>역이 보이면 ⬇ 브레이크로 승강장에 딱 멈춰 손님을 태워요.',
+  keysHelp:[['스페이스 또는 ⬆','석탄 넣기'],['⬇ (꾹)','브레이크']],
+  pad:[['action','🔥 석탄 넣기'],['down','⬇ 브레이크']],
+  quiz:{q:'증기 기차는 무엇의 힘으로 움직였을까요?',c:['바람의 힘','물을 끓일 때 생기는 수증기의 힘','소와 말의 힘'],a:1,ex:'석탄으로 물을 끓여 생긴 수증기의 힘으로 기계를 움직였어요. 그래서 “칙칙폭폭” 소리가 났지요!'},
+  init(){
+    return {d:0,sp:0,p:35,time:0,fx:[],stations:[{x:3000,name:'중간역',st:0},{x:6600,name:'종착역',st:0}],
+      stopT:0,overT:0,miss:0,puffT:0,puffN:0,smoke:[],shovel:0,endAfter:false};
+  },
+  update(s,dt){
+    s.time+=dt;
+    if(s.shovel>0)s.shovel-=dt*3;
+    if(tap('action')||tap('up')){s.p+=10;s.shovel=1;sfx('shovel');}
+    s.p-=7*dt;
+    if(s.p>100){s.overT=1.3;s.p=60;sfx('whistle');addFx(s,520,240,'삐익~! 압력이 넘쳤어요','#ffd27a');}
+    s.p=clamp(s.p,0,100);if(s.overT>0)s.overT-=dt;
+    const eff=s.overT>0?0.25:s.p<15?s.p/15*0.3:Math.min(1,0.3+0.7*(s.p-15)/45);
+    const tg=360*eff;
+    if(s.stopT>0){s.stopT-=dt;s.sp=0;if(s.stopT<=0&&s.endAfter){finish(s,s.miss===0&&s.time<60?3:s.miss<=1?2:1,`역 정차 실패 ${s.miss}번 · ${s.time.toFixed(1)}초`);}}
+    else if(keys.down)s.sp=Math.max(0,s.sp-400*dt);
+    else s.sp+=(tg-s.sp)*Math.min(1,dt*0.8);
+    s.d+=s.sp*dt;
+    s.stations.forEach((st,i)=>{
+      if(st.st!==0)return;const rel=st.x-s.d,last=i===s.stations.length-1;
+      if(Math.abs(rel)<140&&s.sp<8&&s.stopT<=0){st.st=1;s.stopT=1.6;s.sp=0;sfx('ok');addFx(s,520,200,last?'종착역 도착! 정차 성공':'정차 성공! 손님이 탔어요','#b8f5c6');if(last)s.endAfter=true;}
+      else if(rel<-150){st.st=2;s.miss++;sfx('bad');addFx(s,520,200,'앗, 역을 지나쳤어요!','#ffb4a8');
+        if(last)finish(s,s.miss<=1?2:1,`역 정차 실패 ${s.miss}번 · ${s.time.toFixed(1)}초`);}
+    });
+    s.puffT-=dt*(s.sp/110+0.35);
+    if(s.puffT<=0){s.puffT=1;s.puffN++;s.smoke.push({wx:s.d,y:0,t:0});if(s.sp>40&&s.puffN%4===0){addFx(s,575,150,'칙칙폭폭','#fff');sfx('choo');}}
+    for(const p of s.smoke)p.t+=dt;s.smoke=s.smoke.filter(p=>p.t<2.2);
+  },
+  draw(c,s,preview){
+    const G=420,TX=640;
+    sky(c,'#9fd6f2','#f4fbff');clouds(c,s.d*0.04);
+    mountains(c,s.d*0.06,300,'#a7bccb',90,400);
+    mountains(c,s.d*0.18,360,'#88b085',60,240);
+    const po=s.d*0.45;
+    for(let k=Math.floor(po/240)-1;k<Math.floor(po/240)+6;k++){const x=k*240-po;if(hash(k+90)<0.5)tree(c,x,G-30,0.8);}
+    c.fillStyle='#8cc56b';c.fillRect(0,G-34,W,H-G+34);
+    // 전봇대
+    for(let k=Math.floor(s.d/320);k<Math.floor(s.d/320)+5;k++){const x=k*320-s.d;ln(c,x,G-30,x,G-150,'#7a5532',5);ln(c,x-16,G-140,x+16,G-140,'#7a5532',4);}
+    c.strokeStyle='#555';c.lineWidth=1;c.beginPath();c.moveTo(0,G-138);c.lineTo(W,G-138);c.stroke();
+    // 역
+    s.stations.forEach(st=>{
+      const x=TX+(st.x-s.d);if(x<-400||x>W+400)return;
+      rr(c,x-150,G-22,300,22,2,st.st===0?'#e8d6a8':'#c9e9c9');
+      if(!preview&&st.st===0){c.save();c.globalAlpha=0.3+0.2*Math.sin(T*6);c.fillStyle='#3bb36a';c.fillRect(x-140,G-22,280,22);c.restore();}
+      rr(c,x-70,G-120,140,98,4,'#f0e2c4');c.beginPath();c.moveTo(x-90,G-118);c.lineTo(x,G-160);c.lineTo(x+90,G-118);c.fillStyle='#b5402e';c.fill();
+      rr(c,x-24,G-82,48,60,3,'#7a5532');
+      rr(c,x-56,G-150,112,28,4,'#1e2a44');txt(c,st.name,x,G-136,18,'#f2d27a');
+      for(let k=0;k<3;k++)if(st.st===0)person(c,x+60+k*22,G-22,0.6,{hat:k===1?'gat':'braid',cloth:['#f6f1e3','#dfe9f2','#f3dce0'][k]});
+    });
+    // 선로
+    c.fillStyle='#8a7560';c.fillRect(0,G,W,24);
+    c.fillStyle='#6b4524';for(let k=Math.floor(s.d/34);k<Math.floor(s.d/34)+32;k++){c.fillRect(k*34-s.d,G+2,16,20);}
+    ln(c,0,G+4,W,G+4,'#666',4);ln(c,0,G+18,W,G+18,'#666',4);
+    // 연기
+    for(const p of s.smoke){const x=TX-48+(p.wx-s.d)-p.t*30,y=G-176-p.t*60;c.save();c.globalAlpha=Math.max(0,0.7-p.t*0.32);circ(c,x,y,14+p.t*18,'#eeeeee');c.restore();}
+    // 기차
+    const wr=s.d/16;
+    const wheel=(x,r)=>{circ(c,x,G-r+2,r,'#b83a2a');circ(c,x,G-r+2,r*0.35,'#333');for(let i=0;i<4;i++){const a=wr+i*Math.PI/2;ln(c,x,G-r+2,x+Math.cos(a)*r*0.85,G-r+2+Math.sin(a)*r*0.85,'#333',2);}};
+    for(let k=0;k<2;k++){const cx=TX-260-k*170;rr(c,cx-75,G-100,150,78,8,k?'#3c6e47':'#7a3b22');rr(c,cx-80,G-108,160,12,5,'#2a2a2a');
+      for(let w=0;w<4;w++)rr(c,cx-62+w*32,G-88,24,24,3,'#f3e3c0');wheel(cx-48,14);wheel(cx+48,14);ln(c,cx+75,G-34,cx+95,G-34,'#333',5);}
+    rr(c,TX-140,G-128,60,100,6,'#222');rr(c,TX-132,G-118,44,34,4,'#f3e3c0');
+    if(s.shovel>0)person(c,TX-110,G-40,0.55,{hat:'band',cloth:'#4a5a7a',armsUp:true});
+    rr(c,TX-84,G-96,110,62,30,'#2b2b2b');rr(c,TX-84,G-96,110,14,6,'#3c3c3c');
+    rr(c,TX-56,G-150,22,56,3,'#222');rr(c,TX-62,G-158,34,12,4,'#111');
+    circ(c,TX-6,G-104,10,'#c9a227');
+    circ(c,TX+28,G-66,9,'#f2d27a');
+    c.beginPath();c.moveTo(TX+26,G-30);c.lineTo(TX+52,G-4);c.lineTo(TX+20,G-4);c.closePath();c.fillStyle='#b83a2a';c.fill();
+    wheel(TX-110,18);wheel(TX-60,22);wheel(TX-8,22);
+    const rx=Math.cos(wr)*8;ln(c,TX-60+rx,G-20+Math.sin(wr)*8,TX-8+rx,G-20+Math.sin(wr)*8,'#ccc',4);
+    if(s.overT>0){c.save();c.globalAlpha=0.7;circ(c,TX-30,G-110,30+Math.sin(T*30)*5,'#fff');c.restore();}
+    if(!preview){
+      const nx=s.stations.find(st=>st.st===0);
+      hud(c,this,s,[`🚉 정차 실패 ${s.miss}번`],s.d/6600);
+      if(nx){const rel=nx.x-s.d;if(rel>0&&rel<900){rr(c,W/2-130,90,260,40,20,'rgba(30,42,68,.85)');txt(c,`${nx.name}까지 ${Math.round(rel/10)}m · ⬇ 브레이크`,W/2,110,18,'#f2d27a');}}
+      // 압력계
+      const cx=110,cy=H-30;
+      c.beginPath();c.arc(cx,cy,78,Math.PI,0);c.fillStyle='rgba(255,250,240,.95)';c.fill();
+      const arc=(a,b,col)=>{c.beginPath();c.arc(cx,cy,64,Math.PI+a*Math.PI,Math.PI+b*Math.PI);c.strokeStyle=col;c.lineWidth=14;c.lineCap='butt';c.stroke();};
+      arc(0,0.5,'#d8ccb4');arc(0.5,0.85,'#3bb36a');arc(0.85,1,'#e05a3a');
+      const na=Math.PI+s.p/100*Math.PI;ln(c,cx,cy,cx+Math.cos(na)*60,cy+Math.sin(na)*60,'#3b2a1a',4);circ(c,cx,cy,6,'#3b2a1a');
+      txt(c,'증기 압력',cx,cy-24,15,'#3b2a1a');
+      if(s.p<50&&Math.sin(T*8)>0)txt(c,'🔥 석탄을 넣어요!',cx+190,H-40,22,'#fff','center','rgba(40,25,10,.8)');
+    }
+  }
+});
+
+/* =========================================================
+   화면 흐름
+   ========================================================= */
+let scene='title',cur=null,st=null;
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');
+function fitCanvas(){const dpr=Math.min(2,window.devicePixelRatio||1);const r=cv.getBoundingClientRect();const w=Math.max(320,r.width);cv.width=Math.round(w*dpr);cv.height=Math.round(w*9/16*dpr);}
+addEventListener('resize',()=>{if(scene==='play')fitCanvas();});
+
+let progress={};
+try{progress=JSON.parse(localStorage.getItem('oldTransport.v1')||'{}')||{};}catch(e){progress={};}
+function saveProgress(){try{localStorage.setItem('oldTransport.v1',JSON.stringify(progress));}catch(e){}}
+
+function show(id){['title','map','play','sort'].forEach(x=>$(x).classList.toggle('hidden',x!==id));scene=id;window.scrollTo(0,0);}
+
+function starHTML(n){let h='';for(let i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return h;}
+
+function renderMap(){
+  for(const grp of ['old','new']){
+    const box=$(grp==='old'?'cardsOld':'cardsNew');box.innerHTML='';
+    STAGES.filter(s=>s.group===grp).forEach(stage=>{
+      const b=document.createElement('button');b.className='card';
+      const p=progress[stage.id];
+      b.innerHTML=`<canvas width="480" height="270"></canvas>
+        <div class="nm">${stage.name}<span class="stars">${starHTML(p?p.stars:0)}</span></div>
+        <span class="pw ${stage.ptype}">${stage.power}</span>
+        ${p&&p.stamp?'<div class="stamp">참<br>잘했어요</div>':''}`;
+      b.onclick=()=>startStage(stage);
+      box.appendChild(b);
+      const pc=b.querySelector('canvas').getContext('2d');pc.scale(0.5,0.5);
+      try{stage.draw(pc,stage.init(),true);}catch(e){console.error(e);}
+    });
+  }
+}
+
+function startStage(stage){
+  cur=stage;st=stage.init();
+  show('play');fitCanvas();
+  const pad=$('pad');pad.innerHTML='';
+  for(const [k,label] of stage.pad){
+    const b=document.createElement('button');b.className='pbtn';b.textContent=label;
+    const on=e=>{e.preventDefault();ac();try{b.setPointerCapture(e.pointerId);}catch(_){}setKey(k,1);b.classList.add('on');};
+    const off=e=>{setKey(k,0);b.classList.remove('on');};
+    b.addEventListener('pointerdown',on);b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('lostpointercapture',off);
+    b.addEventListener('contextmenu',e=>e.preventDefault());
+    pad.appendChild(b);
+  }
+  $('introPanel').innerHTML=`
+    <h3>${stage.name}</h3>
+    <div class="tag">${stage.power}</div>
+    <div class="fact">📖 ${stage.fact}</div>
+    <div class="mission">🎯 ${stage.mission}</div>
+    <div class="keys">${stage.keysHelp.map(([k,v])=>`<div><b>${k}</b> ${v}</div>`).join('')}</div>
+    <button class="bigbtn" id="btnGo">출발!</button>`;
+  $('intro').classList.remove('hidden');$('result').classList.add('hidden');
+  $('btnGo').onclick=()=>{ac();$('intro').classList.add('hidden');for(const k in keys)keys[k]=0;pressed.clear();cv.focus&&cv.focus();};
+  setTimeout(()=>{const g=$('btnGo');g&&g.focus();},50);
+}
+
+function showResult(){
+  const q=cur.quiz;
+  $('resultPanel').innerHTML=`
+    <h3>임무 성공! 🎉</h3>
+    <div class="resstars">${starHTML(st.stars)}</div>
+    <div class="mission">${st.msg}</div>
+    <div class="quiz"><div class="q">🤔 ${q.q}</div>
+      ${q.c.map((t,i)=>`<button class="choice" data-i="${i}">${['①','②','③'][i]} ${t}</button>`).join('')}
+      <div class="explain" id="explain"></div></div>
+    <div class="maprow" id="resBtns" style="margin:8px 0 0"></div>`;
+  $('result').classList.remove('hidden');
+  let solved=false;
+  $('resultPanel').querySelectorAll('.choice').forEach(b=>{
+    b.onclick=()=>{
+      if(solved)return;const i=+b.dataset.i;
+      if(i===q.a){solved=true;b.classList.add('right');sfx('ok');$('explain').textContent='정답! '+q.ex;
+        const old=progress[cur.id]||{stars:0};progress[cur.id]={stars:Math.max(old.stars||0,st.stars),stamp:true};saveProgress();
+        $('resBtns').innerHTML='<button class="bigbtn" id="btnStamp">🖋 도장 받고 지도로</button><button class="bigbtn ghost" id="btnAgain">↺ 한 번 더</button>';
+        $('btnStamp').onclick=()=>{renderMap();show('map');};
+        $('btnAgain').onclick=()=>startStage(cur);
+      }else{b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');sfx('bad');$('explain').textContent='다시 생각해 볼까요?';}
+    };
+  });
+}
+
+/* ---------------- 메인 루프 ---------------- */
+let lastTs=0;
+function frame(ts){
+  const dt=Math.min(0.05,lastTs?(ts-lastTs)/1000:0);lastTs=ts;T+=dt;
+  if(scene==='play'&&cur&&st){
+    const paused=!$('intro').classList.contains('hidden');
+    if(!paused){
+      if(!st.done)cur.update(st,dt);
+      else{st.doneT+=dt;if(st.doneT>1.4&&!st.shown){st.shown=true;showResult();}}
+      for(const f of st.fx)f.t+=dt;st.fx=st.fx.filter(f=>f.t<1.4);
+    }
+    const sc=cv.width/W;
+    ctx.setTransform(sc,0,0,sc,0,0);
+    cur.draw(ctx,st,false);
+    drawFx(ctx,st);
+    if(st.done){ctx.save();ctx.globalAlpha=Math.min(1,st.doneT*2);txt(ctx,'도착! 임무 성공!',W/2,H/2,64,'#fff','center','rgba(217,69,43,.95)');ctx.restore();}
+  }else if(scene==='title'){drawTitle();}
+  pressed.clear();
+  requestAnimationFrame(frame);
+}
+
+// 타이틀 그림: 여러 교통수단이 지나가는 장면
+const tc=$('titleArt').getContext('2d');
+function drawTitle(){
+  const c=tc;c.setTransform(1.5,0,0,1.5,0,0);
+  const HH=420;
+  const g=c.createLinearGradient(0,0,0,HH);g.addColorStop(0,'#8fd0f5');g.addColorStop(1,'#e8f6ff');c.fillStyle=g;c.fillRect(0,0,W,HH);
+  circ(c,820,70,34,'#fff3b0');clouds(c,T*20);
+  mountains(c,T*8,230,'#a9bfd0',90,380);mountains(c,T*20,280,'#86ad84',60,250);
+  c.fillStyle='#4aa0d0';c.fillRect(0,330,W,90);
+  c.strokeStyle='rgba(255,255,255,.4)';c.lineWidth=2;for(let i=0;i<14;i++){const x=(hash(i)*W+T*40)%(W+60)-30,y=345+(i*13)%70;ln(c,x,y,x+24,y,'rgba(255,255,255,.45)',2);}
+  c.fillStyle='#d9b77a';c.fillRect(0,290,W,40);c.fillStyle='#8cc56b';c.fillRect(0,282,W,10);
+  const hx=((T*140)%(W+300))-150;horse(c,hx,318,T*12,'#8a5530',true);
+  const px=W-((T*60)%(W+300))+150;
+  person(c,px-60,318,0.9,{step:T*8,hat:'band',armsUp:true});person(c,px+60,318,0.9,{step:T*8+Math.PI,hat:'band',armsUp:true});
+  c.save();c.translate(px,240);ln(c,-80,0,80,0,'#6b4524',5);rr(c,-36,-66,72,62,5,'#a64d2c');rr(c,-18,-54,36,30,3,'#f3e3c0');
+  c.beginPath();c.moveTo(-46,-64);c.quadraticCurveTo(0,-92,46,-64);c.fillStyle='#3d2a1e';c.fill();c.restore();
+  const bx=((T*50)%(W+300))-150;
+  c.save();c.translate(bx,372);
+  c.beginPath();c.moveTo(-70,0);c.lineTo(70,0);c.lineTo(54,22);c.lineTo(-56,22);c.closePath();c.fillStyle='#8a5a32';c.fill();
+  ln(c,0,0,0,-110,'#5a3a1a',4);
+  c.beginPath();c.moveTo(4,-104);c.quadraticCurveTo(50+Math.sin(T*3)*4,-60,4,-8);c.closePath();c.fillStyle='#f3ead5';c.fill();
+  person(c,-40,4,0.7,{hat:'gat'});c.restore();
+}
+
+/* ---------------- 정리 활동 ---------------- */
+const BINS=[
+  {id:'human',name:'사람의 힘',desc:'사람이 직접 들거나 밀거나 저어요',items:['가마','뗏목','나룻배']},
+  {id:'animal',name:'동물의 힘',desc:'소나 말을 이용해요',items:['말','달구지']},
+  {id:'nature',name:'자연의 힘',desc:'바람 같은 자연의 힘을 이용해요',items:['돛단배']},
+  {id:'machine',name:'기계의 힘',desc:'기술이 발달하며 기계로 움직여요',items:['증기 기차','증기선','자동차','비행기']},
+];
+let sortSel=null;
+function renderSort(){
+  const all=BINS.flatMap(b=>b.items.map(n=>({n,bin:b.id})));
+  for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]];}
+  const tray=$('tray');tray.innerHTML='';sortSel=null;$('summary').classList.add('hidden');
+  all.forEach(it=>{const b=document.createElement('button');b.className='chip';b.textContent=it.n;b.dataset.bin=it.bin;
+    b.onclick=()=>{tray.querySelectorAll('.chip').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');sortSel=b;sfx('step');};tray.appendChild(b);});
+  const bins=$('bins');bins.innerHTML='';
+  BINS.forEach(bn=>{const d=document.createElement('button');d.className='bin';d.innerHTML=`<h4>${bn.name}</h4><p>${bn.desc}</p><div class="in"></div>`;
+    d.onclick=()=>{
+      if(!sortSel)return;
+      if(sortSel.dataset.bin===bn.id){const sp=document.createElement('span');sp.textContent=sortSel.textContent;d.querySelector('.in').appendChild(sp);sortSel.remove();sortSel=null;sfx('ok');
+        if(!tray.children.length){sfx('win');const s=$('summary');s.classList.remove('hidden');
+          s.innerHTML='🎉 모두 정리했어요!<br>옛날 교통수단은 <b>자연</b>에서 쉽게 얻는 재료로 만들고, <b>사람·동물·자연(바람)의 힘</b>을 이용했어요.<br>과학 기술이 발달하면서 수증기와 석유 같은 <b>기계</b>의 힘으로 움직이는 교통수단이 생겼어요.';}}
+      else{const t=sortSel;t.classList.remove('wrong');void t.offsetWidth;t.classList.add('wrong');sfx('bad');}
+    };bins.appendChild(d);});
+}
+
+/* ---------------- 버튼 ---------------- */
+$('btnStart').onclick=()=>{ac();renderMap();show('map');};
+$('btnQuit').onclick=()=>{renderMap();show('map');};
+$('btnRetry').onclick=()=>{if(cur)startStage(cur);};
+$('btnSound').onclick=()=>{soundOn=!soundOn;$('btnSound').textContent=soundOn?'🔊 소리 켬':'🔇 소리 끔';};
+$('btnSort').onclick=()=>{renderSort();show('sort');};
+$('btnSortBack').onclick=()=>{renderMap();show('map');};
+$('btnReset').onclick=()=>{if(confirm('모든 도장과 별 기록을 지울까요?')){progress={};saveProgress();renderMap();}};
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(scene==='map')renderMap();});
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
